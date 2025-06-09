@@ -1,0 +1,87 @@
+<div class="form-page-container">
+  <header class="form-header">
+    <h1>{{ pageTitle }}</h1>
+      <button type="button" (click)="cancel()" class="btn btn-link-secondary" [disabled]="isLoading">
+      <i class="fas fa-arrow-left"></i> Voltar para a Lista
+    </button>
+  </header>
+
+  <div class="form-content">
+    <div *ngIf="isLoading && isEditMode" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i> Carregando dados do ponto...
+    </div>
+
+    <form [formGroup]="pointForm" (ngSubmit)="onSubmit()" *ngIf="pointForm" class="data-form">
+      <div class="form-section">
+        <h3 class="section-title">Informações do Ponto</h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="name">Nome do Ponto <span class="required-asterisk">*</span></label>
+            <input type="text" id="name" formControlName="name" placeholder="ex: Centro de Reciclagem do Parque Central"
+                       [class.invalid-field]="pointForm.get('name')?.invalid && pointForm.get('name')?.touched">
+            <div *ngIf="pointForm.get('name')?.invalid && pointForm.get('name')?.touched" class="error-message">
+              <span *ngIf="pointForm.get('name')?.errors?.['required']">O nome é obrigatório.</span>
+              <span *ngIf="pointForm.get('name')?.errors?.['minlength']">Mínimo de 3 caracteres.</span>
+            </div>
+          </div>
+           <div class="form-field">
+            <label for="address">Endereço Completo <span class="required-asterisk">*</span></label>
+            <input type="text" id="address" formControlName="address" placeholder="ex: Rua Verde, 123, Ecoville"
+                       [class.invalid-field]="pointForm.get('address')?.invalid && pointForm.get('address')?.touched">
+            <div *ngIf="pointForm.get('address')?.invalid && pointForm.get('address')?.touched" class="error-message">
+              <span *ngIf="pointForm.get('address')?.errors?.['required']">O endereço é obrigatório.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Detalhes de Contato</h3>
+           <div class="form-row">
+             <div class="form-field">
+               <label for="responsibleName">Pessoa Responsável <span class="required-asterisk">*</span></label>
+               <input type="text" id="responsibleName" formControlName="responsibleName" placeholder="ex: Maria Santos"
+                          [class.invalid-field]="pointForm.get('responsibleName')?.invalid && pointForm.get('responsibleName')?.touched">
+               <div *ngIf="pointForm.get('responsibleName')?.invalid && pointForm.get('responsibleName')?.touched" class="error-message">
+                 <span *ngIf="pointForm.get('responsibleName')?.errors?.['required']">A pessoa responsável é obrigatória.</span>
+               </div>
+             </div>
+             <div class="form-field">
+               <label for="contactInfo">Informações de Contato (Telefone/Email) <span class="required-asterisk">*</span></label>
+               <input type="text" id="contactInfo" formControlName="contactInfo" placeholder="ex: (XX) XXXXX-XXXX ou email@exemplo.com"
+                          [class.invalid-field]="pointForm.get('contactInfo')?.invalid && pointForm.get('contactInfo')?.touched">
+               <div *ngIf="pointForm.get('contactInfo')?.invalid && pointForm.get('contactInfo')?.touched" class="error-message">
+                 <span *ngIf="pointForm.get('contactInfo')?.errors?.['required']">As informações de contato são obrigatórias.</span>
+               </div>
+             </div>
+         </div>
+      </div>
+
+
+      <div class="form-section">
+        <h3 class="section-title">Tipos de Resíduos Aceitos <span class="required-asterisk">*</span></h3>
+        <div class="checkbox-group-container" formArrayName="acceptedResidueTypes">
+          <div *ngFor="let type of availableResidueTypes; let i = index" class="checkbox-item">
+            <input type="checkbox" [id]="'residueType_' + i" [formControlName]="i">
+            <label [for]="'residueType_' + i">{{ type | titlecase }}</label>
+          </div>
+        </div>
+           <div *ngIf="acceptedResidueTypesFormArray.invalid && (acceptedResidueTypesFormArray.touched || acceptedResidueTypesFormArray.dirty)" class="error-message array-error">
+             <span *ngIf="acceptedResidueTypesFormArray.hasError('required') || acceptedResidueTypesFormArray.hasError('minlength')">
+                 Por favor, selecione pelo menos um tipo de resíduo.
+             </span>
+         </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="pointForm.invalid || isLoading" class="btn btn-primary">
+            <i class="fas" [ngClass]="isLoading ? 'fa-spinner fa-spin' : (isEditMode ? 'fa-save' : 'fa-plus-circle')"></i>
+          {{ isLoading ? 'Salvando...' : (isEditMode ? 'Atualizar Ponto' : 'Criar Ponto') }}
+        </button>
+        <button type="button" (click)="cancel()" class="btn btn-secondary" [disabled]="isLoading">
+          <i class="fas fa-times-circle"></i> Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

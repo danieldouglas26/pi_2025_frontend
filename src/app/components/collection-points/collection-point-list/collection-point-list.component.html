@@ -1,0 +1,67 @@
+<div class="list-page-container">
+  <header class="list-header">
+    <h1>Gerenciar Pontos de Coleta</h1>
+    <a routerLink="/collection-points/new" class="btn btn-primary">
+      <i class="fas fa-plus-circle"></i> Adicionar Novo Ponto
+    </a>
+  </header>
+
+  <div class="content-area">
+    <div *ngIf="isLoading" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i> Carregando pontos de coleta...
+    </div>
+
+    <div *ngIf="hasError && !isLoading" class="error-message-full">
+      <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+      <button (click)="loadCollectionPoints()" class="btn btn-sm btn-secondary">Tentar Novamente</button>
+    </div>
+
+    <ng-container *ngIf="collectionPoints$ | async as response">
+      <div *ngIf="!isLoading && !hasError">
+        <ng-container *ngIf="response.success && response.data?.content?.length; else noPointsTemplate">
+          <div *ngIf="response.data" class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Responsável</th>
+                  <th>Contato</th>
+                  <th>Endereço</th>
+                  <th>Resíduos Aceitos</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let point of response.data.content">
+                  <td>{{ point.name }}</td>
+                  <td>{{ point.responsibleName }}</td>
+                  <td>{{ point.contactInfo || 'N/D' }}</td>
+                  <td>{{ point.address }}</td>
+                  <td>
+                    <span *ngFor="let type of point.acceptedResidueTypes; let last = last" class="badge">
+                      {{ type }}{{ !last ? ', ' : '' }}
+                    </span>
+                    <span *ngIf="!point.acceptedResidueTypes?.length">-</span>
+                  </td>
+                  <td class="actions-cell">
+                    <a [routerLink]="['/collection-points/edit', point.id]" class="btn btn-sm btn-icon btn-edit" title="Editar Ponto">
+                      <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <button (click)="deleteCollectionPoint(point.id)" class="btn btn-sm btn-icon btn-delete" title="Excluir Ponto" [disabled]="isLoading">
+                      <i class="fas fa-trash-alt"></i> Excluir
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+      </div>
+      <ng-template #noPointsTemplate>
+        <div *ngIf="!isLoading && !hasError && response.success && !response.data?.content?.length" class="no-data-message">
+          <i class="fas fa-info-circle"></i> Nenhum ponto de coleta encontrado.
+        </div>
+      </ng-template>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+.main-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* app-header styling will be in its own SCSS file */
+
+.content-wrapper {
+  display: flex;
+  flex-grow: 1;
+  /* If header has fixed height, add padding-top here */
+  /* Example: padding-top: 60px; */
+}
+
+/* app-sidebar styling will be in its own SCSS file */
+
+.main-content {
+  flex-grow: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  background-color: #f9f9f9; /* A light background for content area */
+}

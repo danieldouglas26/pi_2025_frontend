@@ -1,0 +1,69 @@
+<div class="list-page-container itinerary-planner">
+  <header class="list-header">
+    <h1>Planejador de Roteiros</h1>
+    <a routerLink="/itineraries/new" class="btn btn-primary">
+      <i class="fas fa-calendar-plus"></i> Agendar Novo Roteiro
+    </a>
+  </header>
+
+  <div class="filters-bar">
+    <div class="form-field">
+      <label for="selectedDate">Ver Agendamento para a Data:</label>
+      <input type="date" id="selectedDate" name="selectedDate"
+             [ngModel]="selectedDate"
+             (ngModelChange)="onDateChange($event)"
+             class="date-input">
+    </div>
+  </div>
+
+  <div class="content-area">
+    <div *ngIf="isLoading" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i> Carregando agendamento para {{ selectedDate | date:'fullDate' }}...
+    </div>
+
+    <div *ngIf="hasError && !isLoading" class="error-message-full">
+      <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+      <button (click)="loadItineraries()" class="btn btn-sm btn-secondary">Tentar Novamente</button>
+    </div>
+
+    <ng-container *ngIf="itineraries$ | async as response">
+      <div *ngIf="!isLoading && !hasError">
+        <h2 class="schedule-date-title" *ngIf="response.success">
+          Agendamento para {{ selectedDate | date:'dd/MM/yyyy' }}
+        </h2>
+        
+        <ng-container *ngIf="response.success && response.data?.content?.length; else noItinerariesTemplate">
+          <div *ngIf="response.data" class="itinerary-cards-container">
+            <div *ngFor="let itinerary of response.data.content" class="itinerary-card">
+              <div class="card-header">
+                <h3>{{ itinerary.routeName }}</h3>
+                <span class="truck-info">
+                  <i class="fas fa-truck"></i> {{ itinerary.truckLicensePlate }}
+                </span>
+              </div>
+              <div class="card-body">
+                <p><strong>ID da Rota:</strong> {{ itinerary.routeId }}</p>
+                <p><strong>ID do Caminhão:</strong> {{ itinerary.truckId }}</p>
+              </div>
+              <div class="card-actions actions-cell">
+                <a [routerLink]="['/itineraries/edit', itinerary.id]"
+                   class="btn btn-sm btn-icon btn-edit" title="Editar Roteiro">
+                  <i class="fas fa-edit"></i> Editar
+                </a>
+                <button (click)="deleteItinerary(itinerary.id)" class="btn btn-sm btn-icon btn-delete" title="Excluir Roteiro" [disabled]="isLoading">
+                  <i class="fas fa-trash-alt"></i> Excluir
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <ng-template #noItinerariesTemplate>
+        <div *ngIf="!isLoading && !hasError && response.success && !response.data?.content?.length" class="no-data-message">
+          <i class="fas fa-calendar-times"></i> Nenhum roteiro agendado para esta data.
+        </div>
+      </ng-template>
+    </ng-container>
+  </div>
+</div>

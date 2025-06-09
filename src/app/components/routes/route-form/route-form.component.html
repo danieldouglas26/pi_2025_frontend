@@ -1,0 +1,92 @@
+<div class="form-page-container">
+  <header class="form-header">
+    <h1>{{ pageTitle }}</h1>
+    <button type="button" (click)="cancel()" class="btn btn-link-secondary" [disabled]="isLoading">
+      <i class="fas fa-arrow-left"></i> Voltar para a Lista de Rotas
+    </button>
+  </header>
+
+  <div class="form-content">
+    <div *ngIf="isLoading" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i>
+      {{ isEditMode ? 'Carregando dados da rota...' : 'Carregando pré-requisitos...'}}
+    </div>
+
+    <form [formGroup]="routeForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading" class="data-form">
+      <div class="form-section">
+        <h3 class="section-title">Informações Básicas da Rota</h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="name">Nome da Rota <span class="required-asterisk">*</span></label>
+            <input type="text" id="name" formControlName="name" placeholder="Ex: Rota Leste do Centro"
+                   [class.invalid-field]="routeForm.get('name')?.invalid && routeForm.get('name')?.touched">
+            <div *ngIf="routeForm.get('name')?.invalid && routeForm.get('name')?.touched" class="error-message">
+              <span *ngIf="routeForm.get('name')?.errors?.['required']">O nome da rota é obrigatório.</span>
+              <span *ngIf="routeForm.get('name')?.errors?.['minlength']">Mínimo de 3 caracteres.</span>
+              <span *ngIf="routeForm.get('name')?.hasError('serverError')">
+                {{ routeForm.get('name')?.errors?.['serverError'] }}
+              </span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="truckId">Atribuir Caminhão <span class="required-asterisk">*</span></label>
+            <select id="truckId" formControlName="truckId"
+                    [class.invalid-field]="routeForm.get('truckId')?.invalid && routeForm.get('truckId')?.touched">
+              <option [ngValue]="null" disabled>-- Selecione um Caminhão --</option>
+              <option *ngFor="let truck of availableTrucks" [ngValue]="truck.id">
+                {{ truck.licensePlate }} (Motorista: {{ truck.driverName }})
+              </option>
+            </select>
+            <div *ngIf="routeForm.get('truckId')?.invalid && routeForm.get('truckId')?.touched" class="error-message">
+              <span *ngIf="routeForm.get('truckId')?.errors?.['required']">A atribuição do caminhão é obrigatória.</span>
+              <span *ngIf="routeForm.get('truckId')?.hasError('serverError')">
+                {{ routeForm.get('truckId')?.errors?.['serverError'] }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="section-title">Selecionar Pontos de Coleta (Mín. 2) <span class="required-asterisk">*</span></h3>
+        <p class="section-subtitle">O sistema calculará o caminho ideal com base na sua seleção.</p>
+        <div class="checkbox-group-container" formArrayName="collectionPointIds">
+          <div *ngFor="let point of availableCollectionPoints; let i = index" class="checkbox-item">
+            <input type="checkbox" [id]="'pointId_' + i" [formControlName]="i">
+            <label [for]="'pointId_' + i">{{ point.name }} (Endereço: {{ point.address }})</label>
+          </div>
+          <div *ngIf="!availableCollectionPoints.length && !isLoading" class="no-data-message small">
+            Nenhum ponto de coleta disponível para selecionar. Por favor, adicione-os primeiro.
+          </div>
+        </div>
+        <div *ngIf="collectionPointIdsArray.invalid && (collectionPointIdsArray.touched || collectionPointIdsArray.dirty)" class="error-message array-error">
+          <span>Por favor, selecione pelo menos dois pontos de coleta.</span>
+        </div>
+      </div>
+
+      <div *ngIf="isEditMode && currentRouteDetails" class="form-section route-summary">
+        <h3 class="section-title">Resumo da Rota Atual</h3>
+        <p><strong>Caminhão Designado:</strong> {{ currentRouteDetails.truckLicensePlate }}</p>
+        <p><strong>Distância Total:</strong> {{ currentRouteDetails.totalDistanceKm | number:'1.1-2' }} km</p>
+        <p><strong>Tipos de Resíduos Atendidos:</strong> {{ currentRouteDetails.servicedResidueTypes.join(', ') || 'N/D' }}</p>
+        <p><strong>Caminho (Pontos Ordenados):</strong></p>
+        <ul class="point-list">
+            <li *ngFor="let point of currentRouteDetails.orderedPoints; let i = index">
+              {{ i + 1 }}. {{ point.neighborhoodName }}
+            </li>
+        </ul>
+        <p class="section-subtitle small-text">A atualização dos pontos selecionados ou do caminhão irá recalcular a rota ao salvar.</p>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="routeForm.invalid || isLoading" class="btn btn-primary">
+          <i class="fas" [ngClass]="isLoading ? 'fa-spinner fa-spin' : (isEditMode ? 'fa-save' : 'fa-cogs')"></i>
+          {{ isLoading ? 'Processando...' : (isEditMode ? 'Atualizar e Recalcular Rota' : 'Definir e Calcular Rota') }}
+        </button>
+        <button type="button" (click)="cancel()" class="btn btn-secondary" [disabled]="isLoading">
+          <i class="fas fa-times-circle"></i> Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
