@@ -28,22 +28,37 @@
 
     <ng-container *ngIf="itineraries$ | async as response">
       <div *ngIf="!isLoading && !hasError">
-        <h2 class="schedule-date-title" *ngIf="response.success">
+        <h2 class="schedule-date-title">
           Agendamento para {{ selectedDate | date:'dd/MM/yyyy' }}
         </h2>
-        
-        <ng-container *ngIf="response.success && response.data?.content?.length; else noItinerariesTemplate">
-          <div *ngIf="response.data" class="itinerary-cards-container">
-            <div *ngFor="let itinerary of response.data.content" class="itinerary-card">
+
+        <ng-container *ngIf="response?.length; else noItinerariesTemplate">
+          <div class="itinerary-cards-container">
+            <div *ngFor="let itinerary of response" class="itinerary-card">
               <div class="card-header">
-                <h3>{{ itinerary.routeName }}</h3>
+                <h3>{{ itinerary.rotaNome }}</h3>
                 <span class="truck-info">
-                  <i class="fas fa-truck"></i> {{ itinerary.truckLicensePlate }}
+                  <i class="fas fa-truck"></i> {{ itinerary.caminhaoPlaca }}
                 </span>
               </div>
               <div class="card-body">
-                <p><strong>ID da Rota:</strong> {{ itinerary.routeId }}</p>
-                <p><strong>ID do Caminhão:</strong> {{ itinerary.truckId }}</p>
+                <p><strong>Motorista:</strong> {{ itinerary.motorista || 'N/D' }}</p>
+                <p><strong>Tipo Resíduo:</strong> {{ itinerary.tipoResiduo || 'N/D' }}</p>
+                <p><strong>Distância Total:</strong> {{ itinerary.distanciaTotal | number:'1.1-2' }} km</p>
+                <p><strong>Status:</strong> <span [ngClass]="{'badge-success': itinerary.concluido, 'badge-info': !itinerary.concluido}">
+                  {{ itinerary.concluido ? 'Concluído' : 'Pendente' }}
+                </span></p>
+
+                <div *ngIf="itinerary.paradas?.length">
+                  <h4>Paradas:</h4>
+                  <ul class="itinerary-stops-list">
+                    <li *ngFor="let parada of itinerary.paradas">
+                      {{ parada.ordem }}. {{ parada.pontoNome }} ({{ parada.endereco }})
+                      <i [ngClass]="{'fas fa-check-circle text-success': parada.coletado, 'fas fa-hourglass-half text-warning': !parada.coletado}"></i>
+                      {{ parada.coletado ? 'Coletado' : 'A Coletar' }}
+                    </li>
+                  </ul>
+                </div>
               </div>
               <div class="card-actions actions-cell">
                 <a [routerLink]="['/itineraries/edit', itinerary.id]"
@@ -60,7 +75,7 @@
       </div>
 
       <ng-template #noItinerariesTemplate>
-        <div *ngIf="!isLoading && !hasError && response.success && !response.data?.content?.length" class="no-data-message">
+        <div *ngIf="!isLoading && !hasError && response && !response?.length" class="no-data-message">
           <i class="fas fa-calendar-times"></i> Nenhum roteiro agendado para esta data.
         </div>
       </ng-template>

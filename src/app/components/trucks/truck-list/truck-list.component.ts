@@ -7,8 +7,8 @@ import { TruckResponse } from '../../../core/models/truck.model';
 import { TruckService } from '../../../services/truck.service';
 import { NotificationService } from '../../../services/notification.service';
 import { ApiResponse } from '../../../core/models/api-response.model';
-// ATUALIZADO: Importar a nova interface Page
 import { Page } from '../../../core/models/page.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-truck-list',
@@ -21,8 +21,7 @@ export class TruckListComponent implements OnInit {
   private truckService = inject(TruckService);
   private notificationService = inject(NotificationService);
 
-  // ATUALIZADO: O Observable agora espera uma Page<TruckResponse>
-  trucks$: Observable<ApiResponse<Page<TruckResponse>>> | undefined;
+  trucks$!: Observable<Page<TruckResponse>>;
   isLoading = false;
   hasError = false;
   errorMessage = '';
@@ -31,25 +30,24 @@ export class TruckListComponent implements OnInit {
     this.loadTrucks();
   }
 
-    loadTrucks(): void {
+  loadTrucks(): void {
     this.isLoading = true;
     this.hasError = false;
     this.trucks$ = this.truckService.getAllTrucks().pipe(
-      tap(response => {
-        // ADICIONE ESTA LINHA PARA DEBUGAR
-        console.log('DADOS RECEBIDOS NO COMPONENTE:', response);
-        
-        if (!response.success) {
-            this.hasError = true;
-            this.errorMessage = response.message || 'Falha ao carregar os caminhões.';
+      tap(page => {
+        console.log('DADOS COMPLETOS RECEBIDOS NO COMPONENTE - Página:', page);
+        // Inspecione cada caminhão para ver o ID
+        if (page && page.content) {
+          page.content.forEach(truck => {
+            console.log(`Caminhão: Placa=<span class="math-inline">\{truck\.placa\}, ID\=</span>{truck.id}, Tipo=${typeof truck.id}`);
+          });
         }
       }),
       catchError(error => {
         this.hasError = true;
-        this.errorMessage = error.message || 'Ocorreu um erro inesperado.';
-        // ATUALIZADO: O retorno do erro deve simular a estrutura de paginação vazia
+        this.errorMessage = error.message || 'Ocorreu um erro inesperado ao carregar os caminhões.';
         const emptyPage: Page<TruckResponse> = { content: [], pageNumber: 0, pageSize: 0, totalElements: 0, totalPages: 0, last: true };
-        return of({ success: false, message: this.errorMessage, data: emptyPage });
+        return of(emptyPage);
       }),
       finalize(() => this.isLoading = false)
     );
@@ -57,25 +55,26 @@ export class TruckListComponent implements OnInit {
 
   deleteTruck(truckId: string | undefined): void {
     if (!truckId) {
-        this.notificationService.error('Truck ID is undefined. Cannot delete.');
-        return;
+      this.notificationService.error('ID do Caminhão inválido. Não é possível excluir.');
+      return;
     }
 
-    const confirmDelete = confirm(`Are you sure you want to delete truck with ID: ${truckId}? This action cannot be undone.`);
+    const confirmDelete = confirm(`Você tem certeza que deseja excluir o caminhão (ID: ${truckId})? Esta ação não pode ser desfeita.`);
     if (confirmDelete) {
       this.isLoading = true;
       this.truckService.deleteTruck(truckId).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.notificationService.success('Truck deleted successfully!');
-            this.loadTrucks(); // Refresh the list
-          } else {
-            this.notificationService.error(response.message || 'Failed to delete truck.');
-          }
+        next: () => {
+          this.notificationService.success('Caminhão excluído com sucesso!');
+          this.loadTrucks();
         },
-        error: (err) => {
-          this.notificationService.error('An error occurred while deleting the truck.', err.message);
-          console.error("Delete truck error:", err);
+        error: (err: HttpErrorResponse) => {
+          const apiResponse = err.error as ApiResponse<null>;
+          if (apiResponse?.message) {
+            this.notificationService.error(apiResponse.message);
+          } else {
+            this.notificationService.error('Ocorreu um erro ao excluir o caminhão.', err.message);
+          }
+          console.error("Erro ao excluir caminhão:", err);
         },
         complete: () => this.isLoading = false
       });

@@ -15,65 +15,35 @@
         <h3 class="section-title">Detalhes do Caminhão</h3>
         <div class="form-row">
           <div class="form-field">
-            <label for="licensePlate">Placa do Veículo <span class="required-asterisk">*</span></label>
-            <input type="text" id="licensePlate" formControlName="licensePlate" placeholder="ABC-1D23 ou ABC1D23"
-                   [class.invalid-field]="truckForm.get('licensePlate')?.invalid && truckForm.get('licensePlate')?.touched">
-            <div *ngIf="truckForm.get('licensePlate')?.invalid && truckForm.get('licensePlate')?.touched" class="error-message">
-              <span *ngIf="truckForm.get('licensePlate')?.errors?.['required']">A placa do veículo é obrigatória.</span>
-              <span *ngIf="truckForm.get('licensePlate')?.errors?.['pattern']">Formato de placa inválido (ex: ABC-1D23 ou AAA1B23).</span>
+            <label for="placa">Placa do Veículo <span class="required-asterisk">*</span></label> <input type="text" id="placa" formControlName="placa" placeholder="ABC-1D23 ou ABC1D23" [class.invalid-field]="truckForm.get('placa')?.invalid && truckForm.get('placa')?.touched"> <div *ngIf="truckForm.get('placa')?.invalid && truckForm.get('placa')?.touched" class="error-message"> <span *ngIf="truckForm.get('placa')?.errors?.['required']">A placa do veículo é obrigatória.</span> <span *ngIf="truckForm.get('placa')?.errors?.['pattern']">Formato de placa inválido (ex: ABC-1D23 ou AAA1B23).</span>
             </div>
           </div>
 
           <div class="form-field">
-            <label for="driverName">Nome do Motorista <span class="required-asterisk">*</span></label>
-            <input type="text" id="driverName" formControlName="driverName" placeholder="Ex: João Silva"
-                   [class.invalid-field]="truckForm.get('driverName')?.invalid && truckForm.get('driverName')?.touched">
-            <div *ngIf="truckForm.get('driverName')?.invalid && truckForm.get('driverName')?.touched" class="error-message">
-              <span *ngIf="truckForm.get('driverName')?.errors?.['required']">O nome do motorista é obrigatório.</span>
-              <span *ngIf="truckForm.get('driverName')?.errors?.['minlength']">Deve ter no mínimo 3 caracteres.</span>
+            <label for="nomeMotorista">Nome do Motorista <span class="required-asterisk">*</span></label> <input type="text" id="nomeMotorista" formControlName="nomeMotorista" placeholder="Ex: João Silva" [class.invalid-field]="truckForm.get('nomeMotorista')?.invalid && truckForm.get('nomeMotorista')?.touched"> <div *ngIf="truckForm.get('nomeMotorista')?.invalid && truckForm.get('nomeMotorista')?.touched" class="error-message"> <span *ngIf="truckForm.get('nomeMotorista')?.errors?.['required']">O nome do motorista é obrigatório.</span> <span *ngIf="truckForm.get('nomeMotorista')?.errors?.['minlength']">Deve ter no mínimo 3 caracteres.</span>
             </div>
           </div>
         </div>
 
-     <div class="form-row">
-  <div class="form-field">
-    <label for="capacity">Capacidade <span class="required-asterisk">*</span></label>
-    <input type="number" id="capacity" formControlName="capacity" placeholder="Ex: 5000"
-           [class.invalid-field]="truckForm.get('capacity')?.invalid && truckForm.get('capacity')?.touched">
-    <div *ngIf="truckForm.get('capacity')?.invalid && truckForm.get('capacity')?.touched" class="error-message">
-      <span *ngIf="truckForm.get('capacity')?.errors?.['required']">A capacidade é obrigatória.</span>
-      <span *ngIf="truckForm.get('capacity')?.errors?.['min']">A capacidade deve ser maior que 0.</span>
-    </div>
-  </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="capacidade">Capacidade <span class="required-asterisk">*</span></label> <input type="number" id="capacidade" formControlName="capacidade" placeholder="Ex: 5000" [class.invalid-field]="truckForm.get('capacidade')?.invalid && truckForm.get('capacidade')?.touched"> <div *ngIf="truckForm.get('capacidade')?.invalid && truckForm.get('capacidade')?.touched" class="error-message"> <span *ngIf="truckForm.get('capacidade')?.errors?.['required']">A capacidade é obrigatória.</span> <span *ngIf="truckForm.get('capacidade')?.errors?.['min']">A capacidade deve ser maior que 0.</span> </div>
+          </div>
 
-  <div class="form-field">
-    <label for="capacityUnit">Unidade de Capacidade <span class="required-asterisk">*</span></label>
-    <select id="capacityUnit" formControlName="capacityUnit"
-            [class.invalid-field]="truckForm.get('capacityUnit')?.invalid && truckForm.get('capacityUnit')?.touched">
-      
-      <option *ngFor="let unit of availableCapacityUnits" [ngValue]="unit">
-        {{ unit }} </option>
-      
-    </select>
-  </div>
-</div>
+          </div>
       </div>
 
       <div class="form-section">
         <h3 class="section-title">Tipos de Resíduos Permitidos <span class="required-asterisk">*</span></h3>
-        <div class="checkbox-group-container" formArrayName="allowedResidueTypes">
-          <div *ngFor="let type of availableResidueTypes; let i = index" class="checkbox-item">
+        <div class="checkbox-group-container" formArrayName="tipoResiduos"> <div *ngFor="let type of availableResidueTypes; let i = index" class="checkbox-item">
             <input type="checkbox" [id]="'residueType_' + i" [formControlName]="i">
             <label [for]="'residueType_' + i">{{ type | titlecase }}</label>
           </div>
         </div>
-        <div *ngIf="allowedResidueTypesFormArray.invalid && (allowedResidueTypesFormArray.touched || allowedResidueTypesFormArray.dirty)" class="error-message array-error">
-          <span *ngIf="allowedResidueTypesFormArray.hasError('required') || allowedResidueTypesFormArray.hasError('minlength')">
-            Por favor, selecione ao menos um tipo de resíduo.
+        <div *ngIf="tipoResiduosFormArray.invalid && (tipoResiduosFormArray.touched || tipoResiduosFormArray.dirty)" class="error-message array-error"> <span *ngIf="tipoResiduosFormArray.hasError('required') || tipoResiduosFormArray.hasError('minlength')"> Por favor, selecione ao menos um tipo de resíduo.
           </span>
         </div>
       </div>
-
 
       <div class="form-actions">
         <button type="submit" [disabled]="truckForm.invalid || isLoading" class="btn btn-primary">
@@ -87,3 +57,15 @@
     </form>
   </div>
 </div>
+
+  <ng-template #loadingIndicator>
+    <div class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i> Carregando...
+    </div>
+  </ng-template>
+
+  <ng-template #errorMessage>
+    <div class="error-message-full">
+      <i class="fas fa-exclamation-triangle"></i> Ocorreu um erro ao carregar os dados. Tente novamente mais tarde.
+    </div>
+  </ng-template>

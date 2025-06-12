@@ -18,8 +18,8 @@
 
     <ng-container *ngIf="collectionPoints$ | async as response">
       <div *ngIf="!isLoading && !hasError">
-        <ng-container *ngIf="response.success && response.data?.content?.length; else noPointsTemplate">
-          <div *ngIf="response.data" class="table-responsive">
+        <ng-container *ngIf="response.content?.length; else noPointsTemplate">
+          <div *ngIf="response" class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
@@ -32,16 +32,16 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let point of response.data.content">
-                  <td>{{ point.name }}</td>
-                  <td>{{ point.responsibleName }}</td>
-                  <td>{{ point.contactInfo || 'N/D' }}</td>
-                  <td>{{ point.address }}</td>
+                <tr *ngFor="let point of response.content">
+                  <td>{{ point.nome }}</td>
+                  <td>{{ point.nomeResponsavel }}</td>
+                  <td>{{ point.informacaoContato || 'N/D' }}</td>
+                  <td>{{ point.endereco }}</td>
                   <td>
-                    <span *ngFor="let type of point.acceptedResidueTypes; let last = last" class="badge">
+                    <span *ngFor="let type of point.tiposResiduo; let last = last" class="badge">
                       {{ type }}{{ !last ? ', ' : '' }}
                     </span>
-                    <span *ngIf="!point.acceptedResidueTypes?.length">-</span>
+                    <span *ngIf="!point.tiposResiduo?.length">-</span>
                   </td>
                   <td class="actions-cell">
                     <a [routerLink]="['/collection-points/edit', point.id]" class="btn btn-sm btn-icon btn-edit" title="Editar Ponto">
@@ -58,7 +58,7 @@
         </ng-container>
       </div>
       <ng-template #noPointsTemplate>
-        <div *ngIf="!isLoading && !hasError && response.success && !response.data?.content?.length" class="no-data-message">
+        <div *ngIf="!isLoading && !hasError && response && !response.content?.length" class="no-data-message">
           <i class="fas fa-info-circle"></i> Nenhum ponto de coleta encontrado.
         </div>
       </ng-template>

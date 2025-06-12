@@ -1,6 +1,6 @@
 // src/app/app.config.ts
 import { ApplicationConfig } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withDebugTracing } from '@angular/router';
 import { provideHttpClient, withInterceptorsFromDi, HTTP_INTERCEPTORS } from '@angular/common/http'; // Importe withInterceptorsFromDi e HTTP_INTERCEPTORS
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor'; // Importe o interceptor
 
@@ -8,7 +8,8 @@ import { routes } from './app.routes'; // Suas rotas
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(routes),
+        provideRouter(routes, withDebugTracing()), // Adicione withDebugTracing() aqui
+
     provideHttpClient(withInterceptorsFromDi()), // Habilita interceptores baseados em DI
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true } // Registre o interceptor
   ]

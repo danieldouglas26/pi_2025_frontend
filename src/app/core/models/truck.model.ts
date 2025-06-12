@@ -1,18 +1,18 @@
 // Para ENVIAR dados ao criar/atualizar um caminhão
 export interface TruckRequest {
-  licensePlate: string;
-  driverName: string;
-  capacity: number;
-  capacityUnit: string; // Ex: "KILOGRAMS", "LITERS" (conforme seu Enum no backend)
-  allowedResidueTypes: string[]; // Ex: ["ORGANIC", "PLASTIC"]
+  placa: string; // Renomeado de 'licensePlate'
+  nomeMotorista: string; // Renomeado de 'driverName'
+  capacidade: number;
+  tipoResiduos: string[]; // Renomeado de 'allowedResidueTypes' e nome do campo no backend
 }
 
-// Para RECEBER dados de um caminhão (em listagens ou após criação)
+// Para RECEBER dados de um caminhão
 export interface TruckResponse {
-  id: string; // Vem do backend como UUID
-  licensePlate: string;
-  driverName: string;
-  capacity: number;
-  capacityUnit: string;
-  allowedResidueTypes: string[];
+  id: string; // UUID é representado como string no TS
+  placa: string; // Renomeado de 'licensePlate'
+  nomeMotorista: string; // Renomeado de 'driverName'
+  capacidade: number;
+  tipoResiduos: string[]; // Renomeado de 'allowedResidueTypes'
+  dataCriacao: string; // LocalDateTime no backend -> string no frontend
+  dataAtualizacao: string; // LocalDateTime no backend -> string no frontend
 }

@@ -6,9 +6,11 @@ import { catchError, finalize, tap } from 'rxjs/operators';
 import { CollectionPointResponse } from '../../../core/models/collection-point.model';
 import { CollectionPointService } from '../../../services/collection-point.service';
 import { NotificationService } from '../../../services/notification.service';
+// IMPORTANTE: ApiResponse agora é usado apenas para tipar a resposta de ERRO, não o Observable principal
 import { ApiResponse } from '../../../core/models/api-response.model';
-// Importar a interface Page é crucial
+// A interface Page já está importada
 import { Page } from '../../../core/models/page.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-collection-point-list',
@@ -21,8 +23,8 @@ export class CollectionPointListComponent implements OnInit {
   private collectionPointService = inject(CollectionPointService);
   private notificationService = inject(NotificationService);
 
-  // ATUALIZADO: A tipagem do observable deve esperar uma Page, não um array.
-  collectionPoints$!: Observable<ApiResponse<Page<CollectionPointResponse>>>;
+  // AGORA: O observable espera uma Page<CollectionPointResponse> DIRETAMENTE
+  collectionPoints$!: Observable<Page<CollectionPointResponse>>;
   isLoading = false;
   hasError = false;
   errorMessage = '';
@@ -35,24 +37,22 @@ export class CollectionPointListComponent implements OnInit {
     this.isLoading = true;
     this.hasError = false;
     this.collectionPoints$ = this.collectionPointService.getAllCollectionPoints().pipe(
-      tap(response => {
-        if (!response.success) {
-          this.hasError = true;
-          this.errorMessage = response.message || 'Falha ao carregar os pontos de coleta.';
-        }
+      // Não há mais 'response.success' ou 'response.message' aqui no tap para respostas de sucesso
+      tap(page => {
+        // Você pode adicionar uma lógica aqui se a página estiver vazia ou para debug.
+        // console.log('Dados da página de pontos de coleta:', page);
       }),
       catchError(error => {
         this.hasError = true;
-        this.errorMessage = error.message || 'Ocorreu um erro inesperado.';
-        // ATUALIZADO: O retorno do erro simula uma página vazia para corresponder ao tipo.
+        this.errorMessage = error.message || 'Ocorreu um erro inesperado ao carregar os pontos de coleta.';
+        // Retorna uma Page vazia em caso de erro HTTP para manter a tipagem do Observable
         const emptyPage: Page<CollectionPointResponse> = { content: [], pageNumber: 0, pageSize: 0, totalElements: 0, totalPages: 0, last: true };
-        return of({ success: false, message: this.errorMessage, data: emptyPage });
+        return of(emptyPage); // Retorna a Page vazia diretamente!
       }),
       finalize(() => this.isLoading = false)
     );
   }
 
-  // O método deleteCollectionPoint não precisa de alterações
   deleteCollectionPoint(pointId: string | undefined): void {
     if (!pointId) {
       this.notificationService.error('ID do Ponto de Coleta inválido. Não é possível excluir.');
@@ -63,16 +63,19 @@ export class CollectionPointListComponent implements OnInit {
     if (confirmDelete) {
       this.isLoading = true;
       this.collectionPointService.deleteCollectionPoint(pointId).subscribe({
-        next: (response) => {
-          if (response.success) {
-            this.notificationService.success('Ponto de coleta excluído com sucesso!');
-            this.loadCollectionPoints();
-          } else {
-            this.notificationService.error(response.message || 'Falha ao excluir o ponto de coleta.');
-          }
+        // AGORA: não há mais response.success
+        next: () => { // Delete retorna void
+          this.notificationService.success('Ponto de coleta excluído com sucesso!');
+          this.loadCollectionPoints();
         },
-        error: (err) => {
-          this.notificationService.error('Ocorreu um erro ao excluir o ponto de coleta.', err.message);
+        error: (err: HttpErrorResponse) => { // Ainda pode haver erro HTTP com ApiResponse
+          const apiResponse = err.error as ApiResponse<null>;
+          if (apiResponse?.message) {
+            this.notificationService.error(apiResponse.message);
+          } else {
+            this.notificationService.error('Ocorreu um erro ao excluir o ponto de coleta.', err.message);
+          }
+          console.error("Erro ao excluir ponto de coleta:", err);
         },
         complete: () => this.isLoading = false
       });

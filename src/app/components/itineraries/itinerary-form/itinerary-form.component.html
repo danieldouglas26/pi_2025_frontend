@@ -17,39 +17,28 @@
         <h3 class="section-title">Detalhes do Agendamento</h3>
         <div class="form-row">
           <div class="form-field">
-            <label for="routeId">Rota <span class="required-asterisk">*</span></label>
-            <select id="routeId" formControlName="routeId"
-                    [class.invalid-field]="itineraryForm.get('routeId')?.invalid && itineraryForm.get('routeId')?.touched">
-              <option [ngValue]="null" disabled>-- Selecione uma Rota --</option>
+            <label for="rotaId">Rota <span class="required-asterisk">*</span></label>
+            <select id="rotaId" formControlName="rotaId" [class.invalid-field]="itineraryForm.get('rotaId')?.invalid && itineraryForm.get('rotaId')?.touched"> <option [ngValue]="null" disabled>-- Selecione uma Rota --</option>
               <option *ngFor="let route of availableRoutes" [ngValue]="route.id">
-                {{ route.name }}
-              </option>
+                {{ route.nome }} </option>
             </select>
-            <div *ngIf="itineraryForm.get('routeId')?.invalid && itineraryForm.get('routeId')?.touched" class="error-message">
-              A seleção da rota é obrigatória.
+            <div *ngIf="itineraryForm.get('rotaId')?.invalid && itineraryForm.get('rotaId')?.touched" class="error-message"> A seleção da rota é obrigatória.
             </div>
           </div>
 
           <div class="form-field">
-            <label for="truckId">Caminhão <span class="required-asterisk">*</span></label>
-            <select id="truckId" formControlName="truckId"
-                    [class.invalid-field]="itineraryForm.get('truckId')?.invalid && itineraryForm.get('truckId')?.touched">
-              <option [ngValue]="null" disabled>-- Selecione um Caminhão --</option>
+            <label for="caminhaoId">Caminhão <span class="required-asterisk">*</span></label>
+            <select id="caminhaoId" formControlName="caminhaoId" [class.invalid-field]="itineraryForm.get('caminhaoId')?.invalid && itineraryForm.get('caminhaoId')?.touched"> <option [ngValue]="null" disabled>-- Selecione um Caminhão --</option>
               <option *ngFor="let truck of availableTrucks" [ngValue]="truck.id">
-                {{ truck.licensePlate }} ({{ truck.driverName }})
-              </option>
+                {{ truck.placa }} ({{ truck.nomeMotorista }}) </option>
             </select>
-            <div *ngIf="itineraryForm.get('truckId')?.invalid && itineraryForm.get('truckId')?.touched" class="error-message">
-              A seleção do caminhão é obrigatória.
+            <div *ngIf="itineraryForm.get('caminhaoId')?.invalid && itineraryForm.get('caminhaoId')?.touched" class="error-message"> A seleção do caminhão é obrigatória.
             </div>
           </div>
 
           <div class="form-field">
-            <label for="collectionDate">Data da Coleta <span class="required-asterisk">*</span></label>
-            <input type="date" id="collectionDate" formControlName="collectionDate"
-                   [class.invalid-field]="itineraryForm.get('collectionDate')?.invalid && itineraryForm.get('collectionDate')?.touched">
-            <div *ngIf="itineraryForm.get('collectionDate')?.invalid && itineraryForm.get('collectionDate')?.touched" class="error-message">
-              A data da coleta é obrigatória.
+            <label for="data">Data da Coleta <span class="required-asterisk">*</span></label>
+            <input type="date" id="data" formControlName="data" [class.invalid-field]="itineraryForm.get('data')?.invalid && itineraryForm.get('data')?.touched"> <div *ngIf="itineraryForm.get('data')?.invalid && itineraryForm.get('data')?.touched" class="error-message"> A data da coleta é obrigatória.
             </div>
           </div>
         </div>

@@ -1,23 +1,25 @@
 import { Component, OnInit, inject, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, Subscription, forkJoin } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router'; // Importe ActivatedRoute
+import { Observable, Subscription, forkJoin, of } from 'rxjs';
+import { finalize, catchError } from 'rxjs/operators';
+import { HttpErrorResponse } from '@angular/common/http';
 
 // Models
 import { ApiResponse } from '../../../core/models/api-response.model';
-import { RouteRequest, RouteResponse } from '../../../core/models/route.model';
+import { RouteRequest, RouteResponse, ParadaRotaResponse } from '../../../core/models/route.model';
 import { TruckResponse } from '../../../core/models/truck.model';
 import { CollectionPointResponse } from '../../../core/models/collection-point.model';
 import { Page } from '../../../core/models/page.model';
-
-// Services
+import { ResidueType } from '../../../core/models/enums';
 import { RouteService } from '../../../services/route.service';
-import { NotificationService } from '../../../services/notification.service';
 import { TruckService } from '../../../services/truck.service';
 import { CollectionPointService } from '../../../services/collection-point.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { NotificationService } from '../../../services/notification.service';
+
+// Objeto de fallback para paginação em caso de erro.
+const EMPTY_PAGE: Page<any> = { content: [], pageNumber: 0, pageSize: 0, totalElements: 0, totalPages: 0, last: true };
 
 @Component({
   selector: 'app-route-form',
@@ -34,6 +36,7 @@ export class RouteFormComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private subscriptions = new Subscription();
+  private activatedRoute = inject(ActivatedRoute); // Injeção do ActivatedRoute
 
   routeForm!: FormGroup;
   isEditMode = false;
@@ -42,12 +45,119 @@ export class RouteFormComponent implements OnInit, OnDestroy {
 
   availableTrucks: TruckResponse[] = [];
   availableCollectionPoints: CollectionPointResponse[] = [];
+  readonly availableResidueTypes = Object.values(ResidueType);
+
   currentRouteDetails?: RouteResponse;
 
-  @Input() id?: string;
+  @Input() id?: string; // Mantemos o @Input por compatibilidade, mas o ActiveRoute é mais robusto aqui
 
- 
-onSubmit(): void {
+  constructor() {
+    this.initializeForm();
+  }
+
+  ngOnInit(): void {
+    // Agora, usamos ActivatedRoute para obter o ID da rota
+    const routeId = this.activatedRoute.snapshot.paramMap.get('id');
+    console.log('ID da rota (ActivatedRoute):', routeId); // Log para depuração
+
+    if (routeId) { // Use routeId aqui
+      this.id = routeId; // Atribua ao @Input id, se ainda o usar
+      this.isEditMode = true;
+      this.pageTitle = 'Editar Rota';
+      this.loadPrerequisites(); // loadPrerequisites já chamará loadRouteData se for modo de edição
+    } else {
+      this.pageTitle = 'Definir Nova Rota';
+      this.loadPrerequisites(); // Também precisa carregar pré-requisitos para o modo de criação
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+
+  private initializeForm(): void {
+    this.routeForm = this.fb.group({
+      nome: ['', [Validators.required, Validators.minLength(3)]],
+      caminhaoId: [null, Validators.required],
+      origemId: [null, Validators.required],
+      destinoId: [null, Validators.required],
+      tipoResiduo: [null, Validators.required]
+    });
+  }
+
+  loadPrerequisites(): void {
+    this.isLoading = true;
+    const sub = forkJoin({
+      trucks: this.truckService.getAllTrucks().pipe(
+        catchError(err => {
+          this.notificationService.error('Erro ao carregar caminhões: ' + (err.message || 'Erro desconhecido.'));
+          return of(EMPTY_PAGE as Page<TruckResponse>);
+        })
+      ),
+      collectionPoints: this.collectionPointService.getAllCollectionPoints().pipe(
+        catchError(err => {
+          this.notificationService.error('Erro ao carregar pontos de coleta: ' + (err.message || 'Erro desconhecido.'));
+          return of(EMPTY_PAGE as Page<CollectionPointResponse>);
+        })
+      )
+    }).subscribe({
+      next: (results) => {
+        this.availableTrucks = results.trucks.content || [];
+        this.availableCollectionPoints = results.collectionPoints.content || [];
+
+        // Se está no modo de edição e o ID foi obtido, carrega os dados da rota
+        if (this.isEditMode && this.id) {
+          this.loadRouteData(this.id);
+        } else {
+          this.isLoading = false; // Finaliza o loading se for modo de criação
+        }
+      },
+      error: (err) => {
+        this.notificationService.error('Erro ao carregar dados para o formulário.', err.message);
+        this.isLoading = false;
+      }
+    });
+    this.subscriptions.add(sub);
+  }
+
+  loadRouteData(routeId: string): void {
+    const sub = this.routeService.getRouteById(routeId).pipe(finalize(() => this.isLoading = false)).subscribe({
+      next: (response: RouteResponse) => {
+        const route = response;
+        this.currentRouteDetails = route;
+        this.routeForm.patchValue({
+          nome: route.nome,
+          caminhaoId: route.caminhaoId,
+          origemId: route.paradas?.[0]?.pontoId || null,
+          destinoId: route.paradas?.[route.paradas.length - 1]?.pontoId || null,
+          tipoResiduo: route.tipoResiduo
+        });
+      },
+      error: (err: HttpErrorResponse) => {
+        const apiResponse = err.error as ApiResponse<null>;
+        if (err.status === 404) {
+          this.notificationService.error('Rota não encontrada.');
+        } else if (err.status === 400 && apiResponse?.errors && typeof apiResponse.errors === 'object') {
+          this.notificationService.error('Foram encontrados erros de validação.');
+          Object.keys(apiResponse.errors).forEach(fieldName => {
+            const control = this.routeForm.get(fieldName);
+            if (control) {
+              control.setErrors({ serverError: (apiResponse.errors as any)[fieldName] });
+            }
+          });
+        } else if (apiResponse?.message) {
+          this.notificationService.error(apiResponse.message);
+        } else {
+          this.notificationService.error('Ocorreu um erro inesperado ao buscar os dados da rota.');
+        }
+        console.error('Erro detalhado:', err);
+        this.router.navigate(['/routes']);
+      }
+    });
+    this.subscriptions.add(sub);
+  }
+
+  onSubmit(): void {
     if (this.routeForm.invalid) {
       this.routeForm.markAllAsTouched();
       this.notificationService.error('Por favor, corrija os erros no formulário.');
@@ -57,12 +167,14 @@ onSubmit(): void {
     this.isLoading = true;
 
     const routeDataPayload: RouteRequest = {
-      name: this.routeForm.value.name,
-      truckId: this.routeForm.value.truckId,
-      collectionPointIds: this.getSelectedCollectionPointIdsFromForm()
+      nome: this.routeForm.value.nome,
+      caminhaoId: this.routeForm.value.caminhaoId,
+      origemId: this.routeForm.value.origemId,
+      destinoId: this.routeForm.value.destinoId,
+      tipoResiduo: this.routeForm.value.tipoResiduo
     };
 
-    let operation$: Observable<ApiResponse<RouteResponse>>;
+    let operation$: Observable<RouteResponse>;
 
     if (this.isEditMode && this.id) {
       operation$ = this.routeService.updateRoute(this.id, routeDataPayload);
@@ -71,20 +183,14 @@ onSubmit(): void {
     }
 
     const sub = operation$.pipe(finalize(() => this.isLoading = false)).subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.notificationService.success(`Rota ${this.isEditMode ? 'atualizada' : 'definida'} com sucesso!`);
-          this.router.navigate(['/routes']);
-        } else {
-          this.notificationService.error(response.message || 'A operação falhou.');
-        }
+      next: (response: RouteResponse) => {
+        this.notificationService.success(`Rota ${this.isEditMode ? 'atualizada' : 'definida'} com sucesso!`);
+        this.router.navigate(['/routes']);
       },
-      // ATUALIZADO: Lógica de tratamento de erro aprimorada, igual à do formulário de caminhão.
       error: (err: HttpErrorResponse) => {
         const apiResponse = err.error as ApiResponse<null>;
 
-        // Cenário 1: Erro de validação com detalhes por campo (Status 400)
-        if (err.status === 400 && apiResponse.errors && typeof apiResponse.errors === 'object') {
+        if (err.status === 400 && apiResponse?.errors && typeof apiResponse.errors === 'object') {
           this.notificationService.error('Foram encontrados erros de validação.');
           Object.keys(apiResponse.errors).forEach(fieldName => {
             const control = this.routeForm.get(fieldName);
@@ -93,11 +199,9 @@ onSubmit(): void {
             }
           });
         }
-        // Cenário 2: Erros de negócio ou outros erros com uma mensagem clara
         else if (apiResponse?.message) {
           this.notificationService.error(apiResponse.message);
         }
-        // Cenário 3: Fallback para erros inesperados
         else {
           this.notificationService.error('Ocorreu um erro inesperado na operação.');
         }
@@ -106,69 +210,8 @@ onSubmit(): void {
     });
     this.subscriptions.add(sub);
   }
-  
-  // Incluindo os outros métodos para que a classe fique completa
-  constructor() { this.initializeForm(); }
-  ngOnInit(): void {
-    if (this.id) {
-      this.isEditMode = true;
-      this.pageTitle = 'Editar Rota';
-    }
-    this.loadPrerequisites();
+
+  cancel(): void {
+    this.router.navigate(['/routes']);
   }
-  ngOnDestroy(): void { this.subscriptions.unsubscribe(); }
-  private initializeForm(): void {
-    this.routeForm = this.fb.group({
-      name: ['', [Validators.required, Validators.minLength(3)]],
-      truckId: [null, Validators.required],
-      collectionPointIds: this.fb.array([], [Validators.required, Validators.minLength(2)])
-    });
-  }
-  get collectionPointIdsArray(): FormArray { return this.routeForm.get('collectionPointIds') as FormArray; }
-  private buildCollectionPointCheckboxes(selectedPointIds: string[] = []): void {
-    this.collectionPointIdsArray.clear();
-    this.availableCollectionPoints.forEach(point => {
-      const isSelected = selectedPointIds.some(id => id === point.id);
-      this.collectionPointIdsArray.push(this.fb.control(isSelected));
-    });
-  }
-  private getSelectedCollectionPointIdsFromForm(): string[] {
-    return this.routeForm.value.collectionPointIds
-      .map((checked: boolean, i: number) => checked ? this.availableCollectionPoints[i].id : null)
-      .filter((id: string | null): id is string => !!id);
-  }
-  loadPrerequisites(): void {
-    this.isLoading = true;
-    const sub = forkJoin({
-      trucks: this.truckService.getAllTrucks(),
-      collectionPoints: this.collectionPointService.getAllCollectionPoints()
-    }).subscribe({
-      next: (results) => {
-        if (results.trucks.success && results.trucks.data) { this.availableTrucks = results.trucks.data.content; }
-        else { this.notificationService.error(results.trucks.message || 'Falha ao carregar os caminhões.'); }
-        if (results.collectionPoints.success && results.collectionPoints.data) {
-          this.availableCollectionPoints = results.collectionPoints.data.content;
-          if (this.isEditMode && this.id) { this.loadRouteData(this.id); }
-          else { this.isLoading = false; this.buildCollectionPointCheckboxes(); }
-        } else { this.notificationService.error(results.collectionPoints.message || 'Falha ao carregar os pontos de coleta.'); this.isLoading = false; }
-      },
-      error: (err) => { this.notificationService.error('Erro ao carregar dados para o formulário.', err.message); this.isLoading = false; }
-    });
-    this.subscriptions.add(sub);
-  }
-  loadRouteData(routeId: string): void {
-    const sub = this.routeService.getRouteById(routeId).pipe(finalize(() => this.isLoading = false)).subscribe({
-      next: (response) => {
-        if (response.success && response.data) {
-          const route = response.data;
-          this.currentRouteDetails = route; this.routeForm.patchValue(route);
-          const selectedIds = route.orderedPoints.map(p => p.id);
-          this.buildCollectionPointCheckboxes(selectedIds);
-        } else { this.notificationService.error(response.message || 'Falha ao carregar os dados da rota.'); this.router.navigate(['/routes']); }
-      },
-      error: (err) => { this.notificationService.error('Erro ao buscar os dados da rota.', err.message); this.router.navigate(['/routes']); }
-    });
-    this.subscriptions.add(sub);
-  }
-  cancel(): void { this.router.navigate(['/routes']); }
 }

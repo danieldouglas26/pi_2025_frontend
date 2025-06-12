@@ -1,39 +1,44 @@
-// services/truck.service.ts
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+// IMPORTANTE: Não precisamos mais de ApiResponse aqui, pois o controller retorna diretamente o DTO/Page
+// import { ApiResponse } from '../core/models/api-response.model';
 import { TruckRequest, TruckResponse } from '../core/models/truck.model';
-import { ApiResponse } from '../core/models/api-response.model';
-import { environment } from '../../environments/environment.development';
 import { Page } from '../core/models/page.model';
+import { environment } from '../../environments/environment.development';
 
 @Injectable({ providedIn: 'root' })
 export class TruckService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/trucks`;
+  // ALINHAR COM O MAPPING DO CONTROLLER: @RequestMapping("/api/caminhoes")
+  private apiUrl = `${environment.apiUrl}/caminhoes`;
 
   /**
-   * Este método DEVE retornar o ApiResponse completo, para que o componente
-   * possa verificar a propriedade 'success' e acessar 'data.content'.
+   * Este método agora espera DIRETAMENTE um Page<TruckResponse> como corpo da resposta.
+   * O controller retorna ResponseEntity<Page<CaminhaoResponseDTO>>.
    */
-  getAllTrucks(): Observable<ApiResponse<Page<TruckResponse>>> {
-    return this.http.get<ApiResponse<Page<TruckResponse>>>(this.apiUrl);
+  getAllTrucks(): Observable<Page<TruckResponse>> {
+    // Alinhado com @GetMapping do controller
+    return this.http.get<Page<TruckResponse>>(this.apiUrl);
   }
 
-  getTruckById(id: string): Observable<ApiResponse<TruckResponse>> {
-    return this.http.get<ApiResponse<TruckResponse>>(`${this.apiUrl}/${id}`);
+  getTruckById(id: string): Observable<TruckResponse> {
+    // Alinhado com @GetMapping("/{id}")
+    return this.http.get<TruckResponse>(`${this.apiUrl}/${id}`);
   }
 
-  createTruck(truckData: TruckRequest): Observable<ApiResponse<TruckResponse>> {
-    return this.http.post<ApiResponse<TruckResponse>>(this.apiUrl, truckData);
+  createTruck(truckData: TruckRequest): Observable<TruckResponse> {
+    // Alinhado com @PostMapping do controller
+    return this.http.post<TruckResponse>(this.apiUrl, truckData);
   }
 
-  updateTruck(id: string, truckData: Partial<TruckRequest>): Observable<ApiResponse<TruckResponse>> {
-    return this.http.put<ApiResponse<TruckResponse>>(`${this.apiUrl}/${id}`, truckData);
+  updateTruck(id: string, truckData: Partial<TruckRequest>): Observable<TruckResponse> {
+    // Alinhado com @PutMapping("/{id}")
+    return this.http.put<TruckResponse>(`${this.apiUrl}/${id}`, truckData);
   }
 
-  deleteTruck(id: string): Observable<ApiResponse<null>> {
-    return this.http.delete<ApiResponse<null>>(`${this.apiUrl}/${id}`);
+  deleteTruck(id: string): Observable<void> { // Retorna 'void' para NoContent ou sucesso sem corpo
+    // Alinhado com @DeleteMapping("/{id}")
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

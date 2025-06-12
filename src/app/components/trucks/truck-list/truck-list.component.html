@@ -18,10 +18,10 @@
 
     <ng-container *ngIf="trucks$ | async as response">
       <div *ngIf="!isLoading && !hasError">
-        
-        <ng-container *ngIf="response.success && response.data?.content?.length; else noTrucksTemplate">
-          
-          <div *ngIf="response.data" class="table-responsive">
+
+        <ng-container *ngIf="response?.content?.length; else noTrucksTemplate">
+
+          <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
@@ -33,18 +33,19 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let truck of response.data.content">
-                  <td>{{ truck.licensePlate }}</td>
-                  <td>{{ truck.driverName }}</td>
-                  <td>{{ truck.capacity | number }} {{ truck.capacityUnit }}</td>
+                <tr *ngFor="let truck of response.content">
+                  <td>{{ truck.placa }}</td>
+                  <td>{{ truck.nomeMotorista }}</td>
+                  <td>{{ truck.capacidade | number }}</td>
                   <td>
-                    <span *ngFor="let type of truck.allowedResidueTypes; let last = last" class="badge">
+                    <span *ngFor="let type of truck.tipoResiduos; let last = last" class="badge">
                       {{ type }}{{ !last ? ', ' : '' }}
                     </span>
-                    <span *ngIf="!truck.allowedResidueTypes?.length">-</span>
+                    <span *ngIf="!truck.tipoResiduos?.length">-</span>
                   </td>
                   <td class="actions-cell">
-                    <a [routerLink]="['/trucks/edit', truck.id]" class="btn btn-sm btn-icon btn-edit" title="Editar Caminhão">
+                    <a [routerLink]="['/trucks/edit', truck.id]"
+                       class="btn btn-sm btn-icon btn-edit" title="Editar Caminhão">
                       <i class="fas fa-edit"></i> Editar
                     </a>
                     <button (click)="deleteTruck(truck.id)" class="btn btn-sm btn-icon btn-delete" title="Excluir Caminhão" [disabled]="isLoading">
@@ -59,10 +60,9 @@
       </div>
 
       <ng-template #noTrucksTemplate>
-        <div *ngIf="!isLoading && !hasError && response.success && !response.data?.content?.length" class="no-data-message">
+        <div *ngIf="!isLoading && !hasError && response && !response.content?.length" class="no-data-message">
           <i class="fas fa-info-circle"></i> Nenhum caminhão encontrado. Que tal adicionar um?
         </div>
       </ng-template>
     </ng-container>
-  </div>
 </div>

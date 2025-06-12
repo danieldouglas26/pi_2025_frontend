@@ -24,14 +24,15 @@ export const routes: Routes = [
         title: 'Trucks - GreenLog'
       },
       {
-        path: 'trucks/new',
-        loadComponent: () => import('./components/trucks/truck-form/truck-form.component').then(m => m.TruckFormComponent),
-        title: 'New Truck - GreenLog'
-      },
-      {
+        // Rota de EDIÇÃO deve vir antes da rota de NEW
         path: 'trucks/edit/:id',
         loadComponent: () => import('./components/trucks/truck-form/truck-form.component').then(m => m.TruckFormComponent),
         title: 'Edit Truck - GreenLog'
+      },
+      {
+        path: 'trucks/new',
+        loadComponent: () => import('./components/trucks/truck-form/truck-form.component').then(m => m.TruckFormComponent),
+        title: 'New Truck - GreenLog'
       },
       // Collection Points
       {
@@ -40,14 +41,14 @@ export const routes: Routes = [
         title: 'Collection Points - GreenLog'
       },
       {
+        path: 'collection-points/edit/:id', // Mantenha a edição antes do new aqui também para consistência
+        loadComponent: () => import('./components/collection-points/collection-point-form/collection-point-form.component').then(m => m.CollectionPointFormComponent),
+        title: 'Edit Collection Point - GreenLog'
+      },
+      {
         path: 'collection-points/new',
         loadComponent: () => import('./components/collection-points/collection-point-form/collection-point-form.component').then(m => m.CollectionPointFormComponent),
         title: 'New Collection Point - GreenLog'
-      },
-      {
-        path: 'collection-points/edit/:id',
-        loadComponent: () => import('./components/collection-points/collection-point-form/collection-point-form.component').then(m => m.CollectionPointFormComponent),
-        title: 'Edit Collection Point - GreenLog'
       },
       // Routes
       {
@@ -56,35 +57,34 @@ export const routes: Routes = [
         title: 'Routes - GreenLog'
       },
       {
+        path: 'routes/edit/:id', // Mantenha a edição antes do new aqui também para consistência
+        loadComponent: () => import('./components/routes/route-form/route-form.component').then(m => m.RouteFormComponent),
+        title: 'Edit Route - GreenLog'
+      },
+      {
         path: 'routes/new',
         loadComponent: () => import('./components/routes/route-form/route-form.component').then(m => m.RouteFormComponent),
         title: 'New Route - GreenLog'
       },
-      {
-        path: 'routes/edit/:id',
-        loadComponent: () => import('./components/routes/route-form/route-form.component').then(m => m.RouteFormComponent),
-        title: 'Edit Route - GreenLog'
-      },
-      
-      // ===== ATUALIZADO: SEÇÃO DE ITINERÁRIOS CORRIGIDA =====
+
+      // Itineraries
       {
         path: 'itineraries',
         loadComponent: () => import('./components/itineraries/itinerary-planner/itinerary-planner.component').then(m => m.ItineraryPlannerComponent),
         title: 'Itinerary Planner - GreenLog'
       },
       {
-        // Rota para CRIAR um novo itinerário
-        path: 'itineraries/new', 
-        loadComponent: () => import('./components/itineraries/itinerary-form/itinerary-form.component').then(m => m.ItineraryFormComponent),
-        title: 'New Itinerary - GreenLog'
-      },
-      {
-        // Rota para EDITAR um itinerário existente, usando o parâmetro :id
-        path: 'itineraries/edit/:id', 
+        // Rota para EDITAR um itinerário existente, usando o parâmetro :id (coloque antes do new)
+        path: 'itineraries/edit/:id',
         loadComponent: () => import('./components/itineraries/itinerary-form/itinerary-form.component').then(m => m.ItineraryFormComponent),
         title: 'Edit Itinerary - GreenLog'
+      },
+      {
+        // Rota para CRIAR um novo itinerário
+        path: 'itineraries/new',
+        loadComponent: () => import('./components/itineraries/itinerary-form/itinerary-form.component').then(m => m.ItineraryFormComponent),
+        title: 'New Itinerary - GreenLog'
       }
-      // A rota antiga 'itineraries/manage' foi removida para evitar confusão.
     ]
   },
   {

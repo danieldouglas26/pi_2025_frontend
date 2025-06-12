@@ -18,31 +18,29 @@
 
     <ng-container *ngIf="routes$ | async as response">
       <div *ngIf="!isLoading && !hasError">
-        <ng-container *ngIf="response.success && response.data?.content?.length; else noRoutesTemplate">
-          <div *ngIf="response.data" class="table-responsive">
+        <ng-container *ngIf="response?.content?.length; else noRoutesTemplate">
+          <div class="table-responsive">
             <table class="data-table">
               <thead>
                 <tr>
                   <th>Nome da Rota</th>
                   <th>Caminhão Atribuído (Placa)</th>
                   <th>Distância Total (km)</th>
-                  <th>Resíduos Atendidos</th>
+                  <th>Tipo de Resíduo</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let route of response.data.content">
-                  <td>{{ route.name }}</td>
-                  <td>{{ route.truckLicensePlate || 'N/D' }}</td>
-                  <td>{{ route.totalDistanceKm | number:'1.1-2' }}</td>
+                <tr *ngFor="let route of response.content">
+                  <td>{{ route.nome }}</td>
+                  <td>{{ route.caminhaoPlaca || 'N/D' }}</td>
+                  <td>{{ route.distanciaTotalKm | number:'1.1-2' }}</td>
                   <td>
-                    <span *ngFor="let type of route.servicedResidueTypes; let last = last" class="badge">
-                      {{ type }}{{ !last ? ', ' : '' }}
-                    </span>
-                    <span *ngIf="!route.servicedResidueTypes?.length">-</span>
+                    <span class="badge">{{ route.tipoResiduo || '-' }}</span>
                   </td>
                   <td class="actions-cell">
-                    <a [routerLink]="['/routes/edit', route.id]" class="btn btn-sm btn-icon btn-edit" title="Editar Rota">
+                    <a [routerLink]="['/routes/edit', route.id]"
+                       class="btn btn-sm btn-icon btn-edit" title="Editar Rota">
                       <i class="fas fa-edit"></i> Editar
                     </a>
                     <button (click)="deleteRoute(route.id)" class="btn btn-sm btn-icon btn-delete" title="Excluir Rota" [disabled]="isLoading">
@@ -56,10 +54,9 @@
         </ng-container>
       </div>
       <ng-template #noRoutesTemplate>
-        <div *ngIf="!isLoading && !hasError && response.success && !response.data?.content?.length" class="no-data-message">
+        <div *ngIf="!isLoading && !hasError && response && !response.content?.length" class="no-data-message">
           <i class="fas fa-info-circle"></i> Nenhuma rota definida ainda.
         </div>
       </ng-template>
     </ng-container>
-  </div>
 </div>
