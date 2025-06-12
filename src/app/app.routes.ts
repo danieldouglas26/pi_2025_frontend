@@ -24,7 +24,6 @@ export const routes: Routes = [
         title: 'Trucks - GreenLog'
       },
       {
-        // Rota de EDIÇÃO deve vir antes da rota de NEW
         path: 'trucks/edit/:id',
         loadComponent: () => import('./components/trucks/truck-form/truck-form.component').then(m => m.TruckFormComponent),
         title: 'Edit Truck - GreenLog'
@@ -41,7 +40,7 @@ export const routes: Routes = [
         title: 'Collection Points - GreenLog'
       },
       {
-        path: 'collection-points/edit/:id', // Mantenha a edição antes do new aqui também para consistência
+        path: 'collection-points/edit/:id',
         loadComponent: () => import('./components/collection-points/collection-point-form/collection-point-form.component').then(m => m.CollectionPointFormComponent),
         title: 'Edit Collection Point - GreenLog'
       },
@@ -57,7 +56,7 @@ export const routes: Routes = [
         title: 'Routes - GreenLog'
       },
       {
-        path: 'routes/edit/:id', // Mantenha a edição antes do new aqui também para consistência
+        path: 'routes/edit/:id',
         loadComponent: () => import('./components/routes/route-form/route-form.component').then(m => m.RouteFormComponent),
         title: 'Edit Route - GreenLog'
       },
@@ -66,7 +65,6 @@ export const routes: Routes = [
         loadComponent: () => import('./components/routes/route-form/route-form.component').then(m => m.RouteFormComponent),
         title: 'New Route - GreenLog'
       },
-
       // Itineraries
       {
         path: 'itineraries',
@@ -74,21 +72,35 @@ export const routes: Routes = [
         title: 'Itinerary Planner - GreenLog'
       },
       {
-        // Rota para EDITAR um itinerário existente, usando o parâmetro :id (coloque antes do new)
         path: 'itineraries/edit/:id',
         loadComponent: () => import('./components/itineraries/itinerary-form/itinerary-form.component').then(m => m.ItineraryFormComponent),
         title: 'Edit Itinerary - GreenLog'
       },
       {
-        // Rota para CRIAR um novo itinerário
         path: 'itineraries/new',
         loadComponent: () => import('./components/itineraries/itinerary-form/itinerary-form.component').then(m => m.ItineraryFormComponent),
         title: 'New Itinerary - GreenLog'
+      },
+      // Ruas (Streets) - NOVO!
+      {
+        path: 'streets',
+        loadComponent: () => import('./components/streets/street-list/street-list.component').then(m => m.StreetListComponent),
+        title: 'Streets - GreenLog'
+      },
+      {
+        path: 'streets/edit/:id',
+        loadComponent: () => import('./components/streets/street-form/street-form.component').then(m => m.StreetFormComponent),
+        title: 'Edit Street - GreenLog'
+      },
+      {
+        path: 'streets/new',
+        loadComponent: () => import('./components/streets/street-form/street-form.component').then(m => m.StreetFormComponent),
+        title: 'New Street - GreenLog'
       }
     ]
   },
   {
-    path: '**', // Wildcard para 404
+    path: '**',
     loadComponent: () => import('./components/shared/not-found/not-found.component').then(m => m.NotFoundComponent),
     title: 'Page Not Found - GreenLog'
   }
