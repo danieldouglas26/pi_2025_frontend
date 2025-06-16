@@ -1,0 +1,57 @@
+<div class="list-page-container">
+  <header class="list-header">
+    <h1>Gerenciar Bairros</h1>
+    <a routerLink="/bairros/new" class="btn btn-primary">
+      <i class="fas fa-plus-circle"></i> Adicionar Novo Bairro
+    </a>
+  </header>
+
+  <div class="content-area">
+    <div *ngIf="isLoading" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i> Carregando bairros...
+    </div>
+
+    <div *ngIf="hasError && !isLoading" class="error-message-full">
+      <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+      <button (click)="loadBairros()" class="btn btn-sm btn-secondary">Tentar Novamente</button>
+    </div>
+
+    <ng-container *ngIf="bairros$ | async as page">
+      <div *ngIf="!isLoading && !hasError">
+        <ng-container *ngIf="page.content.length > 0; else noDataTemplate">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome do Bairro</th>
+                <th>Ações</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let bairro of page.content">
+                <td>{{ bairro.id }}</td>
+                <td>{{ bairro.nome }}</td>
+                <td class="actions-cell">
+                  <a [routerLink]="['/bairros/edit', bairro.id]" class="btn btn-sm btn-icon btn-edit" title="Editar Bairro">
+                    <i class="fas fa-edit"></i> Editar
+                  </a>
+                  <button (click)="deleteBairro(bairro.id)" class="btn btn-sm btn-icon btn-delete" title="Excluir Bairro" [disabled]="isDeleting">
+                    <i class="fas fa-trash-alt"></i> Excluir
+                  </button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+          </ng-container>
+
+        <ng-template #noDataTemplate>
+          <div class="no-data-message">
+            <i class="fas fa-info-circle"></i> Nenhum bairro encontrado.
+          </div>
+        </ng-template>
+      </div>
+    </ng-container>
+  </div>
+</div>

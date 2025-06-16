@@ -1,30 +1,33 @@
-// Para ENVIAR dados ao criar um itinerário// Para ENVIAR dados ao criar um itinerário
+// src/app/core/models/itinerary.model.ts
+
+// Para ENVIAR dados ao criar/atualizar um itinerário
 export interface ItineraryRequest {
-  rotaId: string; // UUID da rota (string no TS)
-  caminhaoId: string; // UUID do caminhão (string no TS)
-  data: string; // LocalDate no backend -> string no frontend (Formato "yyyy-MM-dd")
+  // -> CORREÇÃO: IDs são numéricos
+  rotaId: number;
+  caminhaoId: number;
+  data: string; // Formato "yyyy-MM-dd"
+}
+
+// -> CORREÇÃO: Esta interface agora reflete os dados do Bairro enviados pelo backend
+export interface ParadaItinerarioResponse {
+  ordem: number;
+  bairroId: number;
+  bairroNome: string;
 }
 
 // Para RECEBER dados de um itinerário
 export interface ItineraryResponse {
-  id: string; // UUID do itinerário (string no TS)
-  rotaId: string;
-  rotaNome: string; // Nome da rota
-  caminhaoId: string;
-  caminhaoPlaca: string; // Placa do caminhão
-  motorista: string; // Novo campo
-  data: string; // LocalDate no backend -> string no frontend (Formato "yyyy-MM-dd")
-  distanciaTotal: number; // Novo campo
-  tipoResiduo: string; // Novo campo (Enum como string)
-  concluido: boolean; // Novo campo
-  paradas: ParadaItinerarioResponseDTO[]; // Novo campo, lista de paradas
-}
+  // -> CORREÇÃO: IDs são numéricos
+  id: number;
+  rotaId: number;
+  caminhaoId: number;
 
-// NOVO: Adicione esta interface em core/models/itinerary.model.ts ou em um novo arquivo como parada-itinerario.model.ts
-export interface ParadaItinerarioResponseDTO {
-  ordem: number;
-  pontoId: string;
-  pontoNome: string;
-  endereco: string;
-  coletado: boolean;
+  rotaNome: string;
+  caminhaoPlaca: string;
+  motorista: string;
+  data: string;
+  distanciaTotal: number;
+  tipoResiduo: string;
+  concluido: boolean;
+  paradas: ParadaItinerarioResponse[]; // Usa a interface corrigida
 }

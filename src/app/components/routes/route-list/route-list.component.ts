@@ -2,16 +2,16 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, finalize, tap } from 'rxjs/operators';
-import { RouteResponse } from '../../../core/models/route.model';
-import { RouteService } from '../../../services/route.service';
-import { NotificationService } from '../../../services/notification.service';
-// IMPORTANTE: ApiResponse agora é usado apenas para tipar a resposta de ERRO
-import { ApiResponse } from '../../../core/models/api-response.model';
-// A interface Page já está importada
-import { Page } from '../../../core/models/page.model';
+import { catchError, finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 
+// Models
+import { RouteResponse } from '../../../core/models/route.model';
+import { ApiResponse } from '../../../core/models/api-response.model';
+
+// Services
+import { RouteService } from '../../../services/route.service';
+import { NotificationService } from '../../../services/notification.service';
 
 @Component({
   selector: 'app-route-list',
@@ -24,66 +24,58 @@ export class RouteListComponent implements OnInit {
   private routeService = inject(RouteService);
   private notificationService = inject(NotificationService);
 
-  // AGORA: O observable espera uma Page<RouteResponse> DIRETAMENTE
-  routes$!: Observable<Page<RouteResponse>>;
-  isLoading = false;
-  hasError = false;
-  errorMessage = '';
+  // Usaremos um Observable com o pipe async, que é mais limpo
+  public routes$!: Observable<RouteResponse[]>;
+  public isLoading = false;
+  public hasError = false;
+  public errorMessage = '';
+
+  // Flag para o botão de delete, para não interferir com o loading principal
+  public isDeleting = false;
 
   ngOnInit(): void {
     this.loadRoutes();
   }
 
-
-
-
-
-
   loadRoutes(): void {
     this.isLoading = true;
     this.hasError = false;
     this.routes$ = this.routeService.getAllRoutes().pipe(
-      // Não há mais 'response.success' ou 'response.message' aqui no tap para respostas de sucesso
-      tap(page => {
-          console.log('DADOS COMPLETOS RECEBIDOS NO COMPONENTE - Página Rotas:', page);
-
-        // console.log('Dados da página de rotas:', page);
-      }),
-      catchError(error => {
+      catchError((error) => {
         this.hasError = true;
-        this.errorMessage = error.message || 'Ocorreu um erro inesperado ao carregar as rotas.';
-        // Retorna uma Page vazia em caso de erro HTTP para manter a tipagem do Observable
-        const emptyPage: Page<RouteResponse> = { content: [], pageNumber: 0, pageSize: 0, totalElements: 0, totalPages: 0, last: true };
-        return of(emptyPage); // Retorna a Page vazia diretamente!
+        this.errorMessage = 'Falha ao carregar as rotas. Tente novamente.';
+        console.error(error);
+        return of([]); // Retorna um array vazio em caso de erro para o pipe async
       }),
-      finalize(() => this.isLoading = false)
+      finalize(() => {
+        this.isLoading = false;
+      })
     );
   }
 
-  deleteRoute(routeId: string | undefined): void {
-    if (!routeId) {
+  deleteRoute(routeId: number | undefined): void {
+    if (typeof routeId !== 'number') {
       this.notificationService.error("ID da Rota inválido.");
       return;
     }
     const confirmDelete = confirm(`Você tem certeza que deseja excluir a rota ID: ${routeId}?`);
     if (confirmDelete) {
-      this.isLoading = true;
-      this.routeService.deleteRoute(routeId).subscribe({
-        // AGORA: não há mais response.success (delete retorna void)
+      this.isDeleting = true;
+      this.routeService.deleteRoute(routeId).pipe(
+        finalize(() => this.isDeleting = false)
+      ).subscribe({
         next: () => {
-          this.notificationService.success('Rota excluída!');
-          this.loadRoutes();
+          this.notificationService.success('Rota excluída com sucesso!');
+          this.loadRoutes(); // Recarrega a lista
         },
-        error: (err: HttpErrorResponse) => { // Ainda pode haver erro HTTP com ApiResponse
+        error: (err: HttpErrorResponse) => {
           const apiResponse = err.error as ApiResponse<null>;
           if (apiResponse?.message) {
             this.notificationService.error(apiResponse.message);
           } else {
             this.notificationService.error('Erro ao excluir rota.', err.message);
           }
-          console.error("Erro ao excluir rota:", err);
-        },
-        complete: () => this.isLoading = false
+        }
       });
     }
   }

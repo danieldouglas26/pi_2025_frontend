@@ -1,26 +1,20 @@
+// src/app/components/itineraries/itinerary-form/itinerary-form.component.ts
+
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router'; // Importe ActivatedRoute
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, forkJoin, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-
-// Models
 import { ApiResponse } from '../../../core/models/api-response.model';
 import { ItineraryRequest, ItineraryResponse } from '../../../core/models/itinerary.model';
 import { RouteResponse } from '../../../core/models/route.model';
 import { TruckResponse } from '../../../core/models/truck.model';
-import { Page } from '../../../core/models/page.model';
-
-// Services
 import { ItineraryService } from '../../../services/itinerary.service';
 import { NotificationService } from '../../../services/notification.service';
 import { RouteService } from '../../../services/route.service';
 import { TruckService } from '../../../services/truck.service';
-
-// Objeto de fallback para paginação em caso de erro.
-const EMPTY_PAGE: Page<any> = { content: [], pageNumber: 0, pageSize: 0, totalElements: 0, totalPages: 0, last: true };
 
 @Component({
   selector: 'app-itinerary-form',
@@ -35,7 +29,7 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
   private routeService = inject(RouteService);
   private truckService = inject(TruckService);
   private router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute); // Injeção do ActivatedRoute
+  private activatedRoute = inject(ActivatedRoute);
   private notificationService = inject(NotificationService);
   private subscriptions = new Subscription();
 
@@ -43,7 +37,7 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
   isEditMode = false;
   isLoading = false;
   pageTitle = 'Agendar Novo Roteiro';
-  editId: string | null = null; // Mantenha, mas o valor será definido no ngOnInit via ActivatedRoute
+  editId: number | null = null; // -> CORREÇÃO: ID é um número
 
   availableRoutes: RouteResponse[] = [];
   availableTrucks: TruckResponse[] = [];
@@ -53,19 +47,13 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Agora, usamos ActivatedRoute para obter o ID da rota
-    const routeId = this.activatedRoute.snapshot.paramMap.get('id');
-    console.log('ID do itinerário (ActivatedRoute):', routeId); // Log para depuração
-
-    if (routeId) { // Use routeId aqui
-      this.editId = routeId; // Atribua ao editId
+    const idParam = this.activatedRoute.snapshot.paramMap.get('id');
+    if (idParam) {
+      this.editId = +idParam; // -> CORREÇÃO: Converte para número
       this.isEditMode = true;
       this.pageTitle = 'Editar Agendamento';
-      this.loadPrerequisites(); // loadPrerequisites já chamará loadItineraryData se for modo de edição
-    } else {
-      this.pageTitle = 'Agendar Novo Roteiro';
-      this.loadPrerequisites(); // Também precisa carregar pré-requisitos para o modo de criação
     }
+    this.loadPrerequisites();
   }
 
   ngOnDestroy(): void {
@@ -83,28 +71,18 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
   loadPrerequisites(): void {
     this.isLoading = true;
     const sub = forkJoin({
-      routes: this.routeService.getAllRoutes().pipe(
-        catchError(err => {
-          this.notificationService.error('Erro ao carregar rotas: ' + (err.message || 'Erro desconhecido.'));
-          return of(EMPTY_PAGE as Page<RouteResponse>);
-        })
-      ),
-      trucks: this.truckService.getAllTrucks().pipe(
-        catchError(err => {
-          this.notificationService.error('Erro ao carregar caminhões: ' + (err.message || 'Erro desconhecido.'));
-          return of(EMPTY_PAGE as Page<TruckResponse>);
-        })
-      )
+      routes: this.routeService.getAllRoutes(), // Retorna array
+      trucks: this.truckService.getAllTrucks()  // Retorna Page
     }).subscribe({
       next: (results) => {
-        this.availableRoutes = results.routes.content || [];
+        // -> CORREÇÃO: Acessar os dados corretamente (array e page.content)
+        this.availableRoutes = results.routes || [];
         this.availableTrucks = results.trucks.content || [];
 
-        // Se está no modo de edição e o ID foi obtido, carrega os dados do itinerário
         if (this.isEditMode && this.editId) {
           this.loadItineraryData(this.editId);
         } else {
-          this.isLoading = false; // Finaliza o loading se for modo de criação
+          this.isLoading = false;
         }
       },
       error: (err) => {
@@ -115,35 +93,19 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-  loadItineraryData(id: string): void {
+  loadItineraryData(id: number): void { // -> CORREÇÃO: ID é um número
     const sub = this.itineraryService.getItineraryById(id).pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({
-      next: (response: ItineraryResponse) => {
+      next: (response) => {
         this.itineraryForm.patchValue({
           rotaId: response.rotaId,
           caminhaoId: response.caminhaoId,
-          data: response.data // Já é string "yyyy-MM-dd"
+          data: response.data
         });
       },
       error: (err: HttpErrorResponse) => {
-        const apiResponse = err.error as ApiResponse<null>;
-        if (err.status === 404) {
-          this.notificationService.error('Agendamento não encontrado.');
-        } else if (err.status === 400 && apiResponse?.errors && typeof apiResponse.errors === 'object') {
-          this.notificationService.error('Foram encontrados erros de validação.');
-          Object.keys(apiResponse.errors).forEach(fieldName => {
-            const control = this.itineraryForm.get(fieldName);
-            if (control) {
-              control.setErrors({ serverError: (apiResponse.errors as any)[fieldName] });
-            }
-          });
-        } else if (apiResponse?.message) {
-          this.notificationService.error(apiResponse.message);
-        } else {
-          this.notificationService.error('Ocorreu um erro inesperado ao buscar os dados do agendamento.');
-        }
-        console.error('Erro detalhado:', err);
+        this.notificationService.error('Agendamento não encontrado.');
         this.router.navigate(['/itineraries']);
       }
     });
@@ -164,33 +126,19 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
     if (this.isEditMode && this.editId) {
       operation$ = this.itineraryService.updateItinerary(this.editId, itineraryData);
     } else {
-      operation$ = this.itineraryService.createItinerary(itineraryData); // Chamada para 'createItinerario'
+      operation$ = this.itineraryService.createItinerary(itineraryData);
     }
 
-    const sub = operation$.pipe(finalize(() => this.isLoading = false)).subscribe({
-      next: (response: ItineraryResponse) => {
+    operation$.pipe(finalize(() => this.isLoading = false)).subscribe({
+      next: () => {
         this.notificationService.success(`Agendamento ${this.isEditMode ? 'atualizado' : 'criado'} com sucesso!`);
         this.router.navigate(['/itineraries']);
       },
       error: (err: HttpErrorResponse) => {
-        const apiResponse = err.error as ApiResponse<null>;
-        if (err.status === 400 && apiResponse?.errors && typeof apiResponse.errors === 'object') {
-          this.notificationService.error('Foram encontrados erros de validação.');
-          Object.keys(apiResponse.errors).forEach(fieldName => {
-            const control = this.itineraryForm.get(fieldName);
-            if (control) {
-              control.setErrors({ serverError: (apiResponse.errors as any)[fieldName] });
-            }
-          });
-        } else if (apiResponse?.message) {
-          this.notificationService.error(apiResponse.message);
-        } else {
-          this.notificationService.error('Ocorreu um erro inesperado na operação.');
-        }
-        console.error('Erro detalhado:', err);
+        const message = err.error?.message || `Ocorreu um erro ao ${this.isEditMode ? 'atualizar' : 'criar'} o agendamento.`;
+        this.notificationService.error(message);
       }
     });
-    this.subscriptions.add(sub);
   }
 
   cancel(): void {

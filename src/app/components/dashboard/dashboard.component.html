@@ -50,4 +50,22 @@
   <ng-template #noSummary>
     <p *ngIf="!isLoadingSummary && !summaryError">Não foi possível carregar os dados do resumo.</p>
   </ng-template>
+
+  <hr>
+
+  <section class="graph-section">
+    <h2>Mapa de Bairros e Ruas</h2>
+    <div *ngIf="isLoadingGraph" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i> Carregando mapa...
+    </div>
+    <div *ngIf="graphError && !isLoadingGraph" class="error-message-full">
+      <i class="fas fa-exclamation-triangle"></i> {{ graphError }}
+    </div>
+    <ng-container *ngIf="graphData$ | async as graph; else noGraph">
+      <app-network-graph [nodes]="graph.nodes" [edges]="graph.edges" *ngIf="!isLoadingGraph && !graphError"></app-network-graph>
+    </ng-container>
+    <ng-template #noGraph>
+      <p *ngIf="!isLoadingGraph && !graphError">Não foi possível exibir o mapa de bairros e ruas.</p>
+    </ng-template>
+  </section>
 </div>

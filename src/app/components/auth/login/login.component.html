@@ -21,7 +21,7 @@
                [class.invalid-field]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
         <div *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)" class="error-message">
           <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
-           <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters.</span>
+           <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Senha tem que ter pelo menos 6 caracteres.</span>
         </div>
       </div>
 

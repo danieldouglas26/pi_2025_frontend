@@ -1,21 +1,23 @@
 import { Component, OnInit, inject, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router'; // Importe ActivatedRoute
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, forkJoin, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 
 // Models
 import { ApiResponse } from '../../../core/models/api-response.model';
-import { RouteRequest, RouteResponse, ParadaRotaResponse } from '../../../core/models/route.model';
+import { RouteRequest, RouteResponse } from '../../../core/models/route.model';
 import { TruckResponse } from '../../../core/models/truck.model';
-import { CollectionPointResponse } from '../../../core/models/collection-point.model';
+import { BairroResponse } from '../../../core/models/bairro.model';
 import { Page } from '../../../core/models/page.model';
 import { ResidueType } from '../../../core/models/enums';
+
+// Services
 import { RouteService } from '../../../services/route.service';
 import { TruckService } from '../../../services/truck.service';
-import { CollectionPointService } from '../../../services/collection-point.service';
+import { BairroService } from '../../../services/bairro.service';
 import { NotificationService } from '../../../services/notification.service';
 
 // Objeto de fallback para paginação em caso de erro.
@@ -32,11 +34,11 @@ export class RouteFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private routeService = inject(RouteService);
   private truckService = inject(TruckService);
-  private collectionPointService = inject(CollectionPointService);
+  private bairroService = inject(BairroService);
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private subscriptions = new Subscription();
-  private activatedRoute = inject(ActivatedRoute); // Injeção do ActivatedRoute
+  private activatedRoute = inject(ActivatedRoute);
 
   routeForm!: FormGroup;
   isEditMode = false;
@@ -44,31 +46,29 @@ export class RouteFormComponent implements OnInit, OnDestroy {
   pageTitle = 'Definir Nova Rota';
 
   availableTrucks: TruckResponse[] = [];
-  availableCollectionPoints: CollectionPointResponse[] = [];
+  availableBairros: BairroResponse[] = [];
   readonly availableResidueTypes = Object.values(ResidueType);
 
   currentRouteDetails?: RouteResponse;
 
-  @Input() id?: string; // Mantemos o @Input por compatibilidade, mas o ActiveRoute é mais robusto aqui
+  @Input() id?: number;
 
   constructor() {
     this.initializeForm();
   }
 
   ngOnInit(): void {
-    // Agora, usamos ActivatedRoute para obter o ID da rota
-    const routeId = this.activatedRoute.snapshot.paramMap.get('id');
-    console.log('ID da rota (ActivatedRoute):', routeId); // Log para depuração
+    const routeIdStr = this.activatedRoute.snapshot.paramMap.get('id');
+    const routeId = routeIdStr ? +routeIdStr : null;
 
-    if (routeId) { // Use routeId aqui
-      this.id = routeId; // Atribua ao @Input id, se ainda o usar
+    if (routeId) {
+      this.id = routeId;
       this.isEditMode = true;
       this.pageTitle = 'Editar Rota';
-      this.loadPrerequisites(); // loadPrerequisites já chamará loadRouteData se for modo de edição
     } else {
       this.pageTitle = 'Definir Nova Rota';
-      this.loadPrerequisites(); // Também precisa carregar pré-requisitos para o modo de criação
     }
+    this.loadPrerequisites();
   }
 
   ngOnDestroy(): void {
@@ -79,37 +79,29 @@ export class RouteFormComponent implements OnInit, OnDestroy {
     this.routeForm = this.fb.group({
       nome: ['', [Validators.required, Validators.minLength(3)]],
       caminhaoId: [null, Validators.required],
-      origemId: [null, Validators.required],
-      destinoId: [null, Validators.required],
+      origemBairroId: [null, Validators.required],
+      destinoBairroId: [null, Validators.required],
       tipoResiduo: [null, Validators.required]
     });
   }
 
-  loadPrerequisites(): void {
+   loadPrerequisites(): void {
     this.isLoading = true;
     const sub = forkJoin({
-      trucks: this.truckService.getAllTrucks().pipe(
-        catchError(err => {
-          this.notificationService.error('Erro ao carregar caminhões: ' + (err.message || 'Erro desconhecido.'));
-          return of(EMPTY_PAGE as Page<TruckResponse>);
-        })
-      ),
-      collectionPoints: this.collectionPointService.getAllCollectionPoints().pipe(
-        catchError(err => {
-          this.notificationService.error('Erro ao carregar pontos de coleta: ' + (err.message || 'Erro desconhecido.'));
-          return of(EMPTY_PAGE as Page<CollectionPointResponse>);
-        })
-      )
+      trucks: this.truckService.getAllTrucks(),
+      // -> AJUSTE: Peça uma página grande para garantir que todos os bairros venham no dropdown.
+      // O ideal é ter um endpoint específico para isso no backend.
+      bairros: this.bairroService.getAllBairros(0, 1000)
     }).subscribe({
       next: (results) => {
         this.availableTrucks = results.trucks.content || [];
-        this.availableCollectionPoints = results.collectionPoints.content || [];
+        // -> AJUSTE: Acesse a propriedade 'content' da página de bairros
+        this.availableBairros = results.bairros.content || [];
 
-        // Se está no modo de edição e o ID foi obtido, carrega os dados da rota
         if (this.isEditMode && this.id) {
           this.loadRouteData(this.id);
         } else {
-          this.isLoading = false; // Finaliza o loading se for modo de criação
+          this.isLoading = false;
         }
       },
       error: (err) => {
@@ -120,37 +112,24 @@ export class RouteFormComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-  loadRouteData(routeId: string): void {
+  loadRouteData(routeId: number): void {
     const sub = this.routeService.getRouteById(routeId).pipe(finalize(() => this.isLoading = false)).subscribe({
-      next: (response: RouteResponse) => {
-        const route = response;
+      next: (route: RouteResponse) => {
         this.currentRouteDetails = route;
         this.routeForm.patchValue({
           nome: route.nome,
           caminhaoId: route.caminhaoId,
-          origemId: route.paradas?.[0]?.pontoId || null,
-          destinoId: route.paradas?.[route.paradas.length - 1]?.pontoId || null,
+          origemBairroId: route.paradas?.[0]?.bairroId || null,
+          destinoBairroId: route.paradas?.[route.paradas.length - 1]?.bairroId || null,
           tipoResiduo: route.tipoResiduo
         });
       },
       error: (err: HttpErrorResponse) => {
-        const apiResponse = err.error as ApiResponse<null>;
         if (err.status === 404) {
           this.notificationService.error('Rota não encontrada.');
-        } else if (err.status === 400 && apiResponse?.errors && typeof apiResponse.errors === 'object') {
-          this.notificationService.error('Foram encontrados erros de validação.');
-          Object.keys(apiResponse.errors).forEach(fieldName => {
-            const control = this.routeForm.get(fieldName);
-            if (control) {
-              control.setErrors({ serverError: (apiResponse.errors as any)[fieldName] });
-            }
-          });
-        } else if (apiResponse?.message) {
-          this.notificationService.error(apiResponse.message);
         } else {
           this.notificationService.error('Ocorreu um erro inesperado ao buscar os dados da rota.');
         }
-        console.error('Erro detalhado:', err);
         this.router.navigate(['/routes']);
       }
     });
@@ -166,12 +145,13 @@ export class RouteFormComponent implements OnInit, OnDestroy {
 
     this.isLoading = true;
 
+    const formValue = this.routeForm.value;
     const routeDataPayload: RouteRequest = {
-      nome: this.routeForm.value.nome,
-      caminhaoId: this.routeForm.value.caminhaoId,
-      origemId: this.routeForm.value.origemId,
-      destinoId: this.routeForm.value.destinoId,
-      tipoResiduo: this.routeForm.value.tipoResiduo
+      nome: formValue.nome,
+      caminhaoId: formValue.caminhaoId,
+      origemBairroId: formValue.origemBairroId,
+      destinoBairroId: formValue.destinoBairroId,
+      tipoResiduo: formValue.tipoResiduo
     };
 
     let operation$: Observable<RouteResponse>;
@@ -183,29 +163,17 @@ export class RouteFormComponent implements OnInit, OnDestroy {
     }
 
     const sub = operation$.pipe(finalize(() => this.isLoading = false)).subscribe({
-      next: (response: RouteResponse) => {
+      next: () => {
         this.notificationService.success(`Rota ${this.isEditMode ? 'atualizada' : 'definida'} com sucesso!`);
         this.router.navigate(['/routes']);
       },
       error: (err: HttpErrorResponse) => {
         const apiResponse = err.error as ApiResponse<null>;
-
-        if (err.status === 400 && apiResponse?.errors && typeof apiResponse.errors === 'object') {
-          this.notificationService.error('Foram encontrados erros de validação.');
-          Object.keys(apiResponse.errors).forEach(fieldName => {
-            const control = this.routeForm.get(fieldName);
-            if (control) {
-              control.setErrors({ serverError: (apiResponse.errors as any)[fieldName] });
-            }
-          });
-        }
-        else if (apiResponse?.message) {
+        if (apiResponse?.message) {
           this.notificationService.error(apiResponse.message);
-        }
-        else {
+        } else {
           this.notificationService.error('Ocorreu um erro inesperado na operação.');
         }
-        console.error('Erro detalhado:', err);
       }
     });
     this.subscriptions.add(sub);

@@ -17,91 +17,110 @@ export const routes: Routes = [
         loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent),
         title: 'Dashboard - GreenLog'
       },
+
+      // --> ROTAS PARA BAIRROS ADICIONADAS AQUI <--
+      {
+        path: 'bairros',
+        loadComponent: () => import('./components/bairros/bairro-list/bairro-list.component').then(m => m.BairroListComponent),
+        title: 'Bairros - GreenLog'
+      },
+      {
+        path: 'bairros/new',
+        loadComponent: () => import('./components/bairros/bairro-form/bairro-form.component').then(m => m.BairroFormComponent),
+        title: 'Novo Bairro - GreenLog'
+      },
+      {
+        path: 'bairros/edit/:id',
+        loadComponent: () => import('./components/bairros/bairro-form/bairro-form.component').then(m => m.BairroFormComponent),
+        title: 'Editar Bairro - GreenLog'
+      },
+      // --> FIM DAS ROTAS PARA BAIRROS <--
+
       // Trucks
       {
         path: 'trucks',
         loadComponent: () => import('./components/trucks/truck-list/truck-list.component').then(m => m.TruckListComponent),
-        title: 'Trucks - GreenLog'
+        title: 'Caminhões - GreenLog'
       },
       {
         path: 'trucks/edit/:id',
         loadComponent: () => import('./components/trucks/truck-form/truck-form.component').then(m => m.TruckFormComponent),
-        title: 'Edit Truck - GreenLog'
+        title: 'Editar Caminhão - GreenLog'
       },
       {
         path: 'trucks/new',
         loadComponent: () => import('./components/trucks/truck-form/truck-form.component').then(m => m.TruckFormComponent),
-        title: 'New Truck - GreenLog'
+        title: 'Novo Caminhão - GreenLog'
       },
       // Collection Points
       {
         path: 'collection-points',
         loadComponent: () => import('./components/collection-points/collection-point-list/collection-point-list.component').then(m => m.CollectionPointListComponent),
-        title: 'Collection Points - GreenLog'
+        title: 'Pontos de Coleta - GreenLog'
       },
       {
         path: 'collection-points/edit/:id',
         loadComponent: () => import('./components/collection-points/collection-point-form/collection-point-form.component').then(m => m.CollectionPointFormComponent),
-        title: 'Edit Collection Point - GreenLog'
+        title: 'Editar Ponto de Coleta - GreenLog'
       },
       {
         path: 'collection-points/new',
         loadComponent: () => import('./components/collection-points/collection-point-form/collection-point-form.component').then(m => m.CollectionPointFormComponent),
-        title: 'New Collection Point - GreenLog'
+        title: 'Novo Ponto de Coleta - GreenLog'
       },
       // Routes
       {
         path: 'routes',
         loadComponent: () => import('./components/routes/route-list/route-list.component').then(m => m.RouteListComponent),
-        title: 'Routes - GreenLog'
+        title: 'Rotas - GreenLog'
       },
       {
         path: 'routes/edit/:id',
         loadComponent: () => import('./components/routes/route-form/route-form.component').then(m => m.RouteFormComponent),
-        title: 'Edit Route - GreenLog'
+        title: 'Editar Rota - GreenLog'
       },
       {
         path: 'routes/new',
         loadComponent: () => import('./components/routes/route-form/route-form.component').then(m => m.RouteFormComponent),
-        title: 'New Route - GreenLog'
+        title: 'Nova Rota - GreenLog'
       },
       // Itineraries
       {
         path: 'itineraries',
         loadComponent: () => import('./components/itineraries/itinerary-planner/itinerary-planner.component').then(m => m.ItineraryPlannerComponent),
-        title: 'Itinerary Planner - GreenLog'
+        title: 'Planejador de Itinerários - GreenLog'
       },
       {
         path: 'itineraries/edit/:id',
         loadComponent: () => import('./components/itineraries/itinerary-form/itinerary-form.component').then(m => m.ItineraryFormComponent),
-        title: 'Edit Itinerary - GreenLog'
+        title: 'Editar Itinerário - GreenLog'
       },
       {
         path: 'itineraries/new',
         loadComponent: () => import('./components/itineraries/itinerary-form/itinerary-form.component').then(m => m.ItineraryFormComponent),
-        title: 'New Itinerary - GreenLog'
+        title: 'Novo Itinerário - GreenLog'
       },
-      // Ruas (Streets) - NOVO!
+      // Ruas (Streets)
       {
         path: 'streets',
         loadComponent: () => import('./components/streets/street-list/street-list.component').then(m => m.StreetListComponent),
-        title: 'Streets - GreenLog'
+        title: 'Ruas - GreenLog'
       },
       {
         path: 'streets/edit/:id',
         loadComponent: () => import('./components/streets/street-form/street-form.component').then(m => m.StreetFormComponent),
-        title: 'Edit Street - GreenLog'
+        title: 'Editar Rua - GreenLog'
       },
       {
         path: 'streets/new',
         loadComponent: () => import('./components/streets/street-form/street-form.component').then(m => m.StreetFormComponent),
-        title: 'New Street - GreenLog'
+        title: 'Nova Rua - GreenLog'
       }
     ]
   },
   {
     path: '**',
     loadComponent: () => import('./components/shared/not-found/not-found.component').then(m => m.NotFoundComponent),
-    title: 'Page Not Found - GreenLog'
+    title: 'Página Não Encontrada - GreenLog'
   }
 ];

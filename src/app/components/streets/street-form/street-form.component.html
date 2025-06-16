@@ -9,38 +9,39 @@
   <div class="form-content">
     <div *ngIf="isLoading" class="loading-indicator">
       <i class="fas fa-spinner fa-spin"></i>
-      {{ isEditMode ? 'Carregando dados da rua...' : 'Carregando pontos de coleta disponíveis...'}}
+      <span *ngIf="isEditMode; else creationLoading">Carregando dados...</span>
+      <ng-template #creationLoading>Carregando bairros disponíveis...</ng-template>
     </div>
 
     <form [formGroup]="streetForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading" class="data-form">
       <div class="form-section">
-        <h3 class="section-title">Detalhes da Rua</h3>
+        <h3 class="section-title">Detalhes da Conexão</h3>
         <div class="form-row">
           <div class="form-field">
-            <label for="origemId">Ponto de Origem <span class="required-asterisk">*</span></label>
+            <label for="origemId">Bairro de Origem <span class="required-asterisk">*</span></label>
             <select id="origemId" formControlName="origemId"
                     [class.invalid-field]="streetForm.get('origemId')?.invalid && streetForm.get('origemId')?.touched">
-              <option [ngValue]="null" disabled>-- Selecione o Ponto de Origem --</option>
-              <option *ngFor="let point of availableCollectionPoints" [ngValue]="point.id">
-                {{ point.nome }} ({{ point.endereco }})
+              <option [ngValue]="null" disabled>-- Selecione o Bairro de Origem --</option>
+              <option *ngFor="let bairro of availableBairros" [ngValue]="bairro.id">
+                {{ bairro.nome }}
               </option>
             </select>
             <div *ngIf="streetForm.get('origemId')?.invalid && streetForm.get('origemId')?.touched" class="error-message">
-              O ponto de origem é obrigatório.
+              O bairro de origem é obrigatório.
             </div>
           </div>
 
           <div class="form-field">
-            <label for="destinoId">Ponto de Destino <span class="required-asterisk">*</span></label>
+            <label for="destinoId">Bairro de Destino <span class="required-asterisk">*</span></label>
             <select id="destinoId" formControlName="destinoId"
                     [class.invalid-field]="streetForm.get('destinoId')?.invalid && streetForm.get('destinoId')?.touched">
-              <option [ngValue]="null" disabled>-- Selecione o Ponto de Destino --</option>
-              <option *ngFor="let point of availableCollectionPoints" [ngValue]="point.id">
-                {{ point.nome }} ({{ point.endereco }})
+              <option [ngValue]="null" disabled>-- Selecione o Bairro de Destino --</option>
+              <option *ngFor="let bairro of availableBairros" [ngValue]="bairro.id">
+                {{ bairro.nome }}
               </option>
             </select>
             <div *ngIf="streetForm.get('destinoId')?.invalid && streetForm.get('destinoId')?.touched" class="error-message">
-              O ponto de destino é obrigatório.
+              O bairro de destino é obrigatório.
             </div>
           </div>
         </div>
