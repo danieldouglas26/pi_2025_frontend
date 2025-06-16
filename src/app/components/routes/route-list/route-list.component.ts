@@ -24,13 +24,11 @@ export class RouteListComponent implements OnInit {
   private routeService = inject(RouteService);
   private notificationService = inject(NotificationService);
 
-  // Usaremos um Observable com o pipe async, que é mais limpo
   public routes$!: Observable<RouteResponse[]>;
   public isLoading = false;
   public hasError = false;
   public errorMessage = '';
 
-  // Flag para o botão de delete, para não interferir com o loading principal
   public isDeleting = false;
 
   ngOnInit(): void {
@@ -45,7 +43,7 @@ export class RouteListComponent implements OnInit {
         this.hasError = true;
         this.errorMessage = 'Falha ao carregar as rotas. Tente novamente.';
         console.error(error);
-        return of([]); // Retorna um array vazio em caso de erro para o pipe async
+        return of([]);
       }),
       finalize(() => {
         this.isLoading = false;
@@ -66,7 +64,7 @@ export class RouteListComponent implements OnInit {
       ).subscribe({
         next: () => {
           this.notificationService.success('Rota excluída com sucesso!');
-          this.loadRoutes(); // Recarrega a lista
+          this.loadRoutes();
         },
         error: (err: HttpErrorResponse) => {
           const apiResponse = err.error as ApiResponse<null>;

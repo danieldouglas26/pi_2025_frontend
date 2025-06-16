@@ -1,4 +1,3 @@
-// src/app/components/trucks/truck-form/truck-form.component.ts
 
 import { Component, OnInit, inject, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -35,7 +34,6 @@ export class TruckFormComponent implements OnInit, OnDestroy {
 
   readonly availableResidueTypes = Object.values(ResidueType);
 
-  // -> CORREÇÃO: O ID é um número.
   @Input() id?: number;
 
   constructor() {
@@ -43,13 +41,12 @@ export class TruckFormComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // -> CORREÇÃO: Obter o ID da rota e converter para número.
     const routeIdStr = this.activatedRoute.snapshot.paramMap.get('id');
-    const routeId = routeIdStr ? +routeIdStr : null; // O '+' converte a string para número
+    const routeId = routeIdStr ? +routeIdStr : null;
 
     this.buildResidueTypesCheckboxes();
 
-    if (routeId !== null && !isNaN(routeId)) { // Verifica se a conversão foi bem-sucedida
+    if (routeId !== null && !isNaN(routeId)) {
       this.id = routeId;
       this.isEditMode = true;
       this.pageTitle = 'Editar Caminhão';
@@ -90,7 +87,6 @@ export class TruckFormComponent implements OnInit, OnDestroy {
       .filter((value: string | null): value is string => value !== null);
   }
 
-  // -> CORREÇÃO: O ID é um número.
   loadTruckData(truckId: number): void {
     this.isLoading = true;
     const sub = this.truckService.getTruckById(truckId).pipe(
@@ -131,7 +127,6 @@ export class TruckFormComponent implements OnInit, OnDestroy {
 
     let operation$: Observable<TruckResponse>;
 
-    // -> CORREÇÃO: Garante que 'this.id' é um número antes de usar.
     if (this.isEditMode && typeof this.id === 'number') {
       operation$ = this.truckService.updateTruck(this.id, truckData);
     } else {

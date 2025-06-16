@@ -1,5 +1,5 @@
 import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule, NgIf, NgFor, AsyncPipe } from '@angular/common'; // Importe todos os pipes/directives necessários
+import { CommonModule, NgIf, NgFor, AsyncPipe } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, finalize, tap } from 'rxjs/operators';
@@ -7,13 +7,13 @@ import { StreetService } from '../../../services/street.service';
 import { NotificationService } from '../../../services/notification.service';
 import { StreetResponse } from '../../../core/models/street.model';
 import { Page } from '../../../core/models/page.model';
-import { ApiResponse } from '../../../core/models/api-response.model'; // Para tratamento de erro HTTP
+import { ApiResponse } from '../../../core/models/api-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-street-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, NgIf, NgFor, AsyncPipe], // Verifique os imports aqui
+  imports: [CommonModule, RouterModule, NgIf, NgFor, AsyncPipe],
   templateUrl: './street-list.component.html',
   styleUrls: ['./street-list.component.scss']
 })
@@ -52,8 +52,8 @@ export class StreetListComponent implements OnInit {
     );
   }
 
-  deleteStreet(streetId: string | undefined): void {
-    if (!streetId) {
+  deleteStreet(streetId: number | undefined): void {
+    if (typeof streetId !== 'number') {
       this.notificationService.error("ID da Rua inválido. Não é possível excluir.");
       return;
     }

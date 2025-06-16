@@ -1,9 +1,9 @@
 .app-sidebar {
   width: 260px;
-  background-color: var(--sidebar-bg, #34495e); /* Darker sidebar */
-  padding: 1.5rem 0; /* More padding top/bottom */
+  background-color: var(--sidebar-bg, #34495e);
+  padding: 1.5rem 0;
   color: var(--sidebar-text-color, #ecf0f1);
-  height: 100%; /* Ensure it fills the height in flex container */
+  height: 100%;
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
 
   nav ul {
@@ -15,8 +15,8 @@
       display: block;
       padding: 0.9rem 1.5rem;
       text-decoration: none;
-      color: var(--sidebar-link-color, #bdc3c7); /* Lighter gray for links */
-      border-left: 3px solid transparent; /* For active indicator */
+      color: var(--sidebar-link-color, #bdc3c7);
+      border-left: 3px solid transparent;
       transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-left-color 0.2s ease-in-out;
       font-size: 0.95rem;
 
@@ -26,10 +26,10 @@
       }
 
       &.active-link {
-        background-color: var(--sidebar-link-active-bg, #2c3e50); /* Slightly darker than hover */
+        background-color: var(--sidebar-link-active-bg, #2c3e50);
         color: var(--sidebar-link-active-color, white);
         font-weight: 600;
-        border-left-color: var(--accent-color, #3498db); /* Accent color for active border */
+        border-left-color: var(--accent-color, #3498db);
       }
     }
   }

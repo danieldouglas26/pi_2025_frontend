@@ -4,15 +4,13 @@ export interface GraphNode {
   label: string;
 }
 
-// Define a estrutura de uma "aresta" (uma rua/conexão)
 export interface GraphEdge {
   id?: string;
-  source: string; // ID do nó de origem
-  target: string; // ID do nó de destino
-  label?: string;  // Texto que aparece na linha (ex: distância)
+  source: string;
+  target: string;
+  label?: string;
 }
 
-// Agrupa os nós e as arestas
 export interface GraphData {
   nodes: GraphNode[];
   edges: GraphEdge[];

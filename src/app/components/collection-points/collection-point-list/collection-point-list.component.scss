@@ -1,9 +1,6 @@
-// Can largely reuse styles from truck-list.component.scss
-// Or create a shared _list-page.scss and import it.
-// For brevity, assuming similar styling to truck-list.
-@use '../../../styles/partials/list-page' as list-page; // Example of using a partial
 
-// Apply shared list page styles
+@use '../../../styles/partials/list-page' as list-page;
+
 :host {
   @include list-page.list-page-styles;
 }

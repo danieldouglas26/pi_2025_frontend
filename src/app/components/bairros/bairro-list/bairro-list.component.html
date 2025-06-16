@@ -23,14 +23,13 @@
             <table class="data-table">
               <thead>
               <tr>
-                <th>ID</th>
                 <th>Nome do Bairro</th>
                 <th>Ações</th>
               </tr>
               </thead>
               <tbody>
               <tr *ngFor="let bairro of page.content">
-                <td>{{ bairro.id }}</td>
+
                 <td>{{ bairro.nome }}</td>
                 <td class="actions-cell">
                   <a [routerLink]="['/bairros/edit', bairro.id]" class="btn btn-sm btn-icon btn-edit" title="Editar Bairro">

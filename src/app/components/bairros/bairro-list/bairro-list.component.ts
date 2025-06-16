@@ -28,9 +28,8 @@ export class BairroListComponent implements OnInit {
   public hasError = false;
   public errorMessage = '';
 
-  // TODO: Adicionar lógica de paginação se necessário
   private currentPage = 0;
-  private pageSize = 10;
+  private pageSize = 100;
 
   ngOnInit(): void {
     this.loadBairros();
@@ -69,7 +68,6 @@ export class BairroListComponent implements OnInit {
         },
         error: (err: HttpErrorResponse) => {
           const defaultError = 'Ocorreu um erro ao excluir o bairro.';
-          // O backend retorna um corpo de erro em caso de BusinessException
           const message = err.error?.message || err.message || defaultError;
           this.notificationService.error(message);
         }

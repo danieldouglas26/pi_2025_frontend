@@ -1,5 +1,3 @@
-// src/app/components/trucks/truck-list/truck-list.component.ts
-
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -46,9 +44,7 @@ export class TruckListComponent implements OnInit {
     );
   }
 
-  // -> CORREÇÃO: O ID é um número.
   deleteTruck(truckId: number | undefined): void {
-    // -> CORREÇÃO: Melhorar a validação para o tipo 'number'.
     if (typeof truckId !== 'number') {
       this.notificationService.error('ID do Caminhão inválido. Não é possível excluir.');
       return;
@@ -60,7 +56,7 @@ export class TruckListComponent implements OnInit {
       this.truckService.deleteTruck(truckId).subscribe({
         next: () => {
           this.notificationService.success('Caminhão excluído com sucesso!');
-          this.loadTrucks(); // Recarrega a lista
+          this.loadTrucks();
         },
         error: (err: HttpErrorResponse) => {
           const apiResponse = err.error as ApiResponse<null>;

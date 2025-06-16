@@ -14,7 +14,6 @@ export class RouteService {
     return this.http.get<RouteResponse[]>(this.apiUrl);
   }
 
-  // -> CORREÇÃO: O ID é um número
   getRouteById(id: number): Observable<RouteResponse> {
     return this.http.get<RouteResponse>(`${this.apiUrl}/${id}`);
   }
@@ -23,22 +22,18 @@ export class RouteService {
     return this.http.post<RouteResponse>(this.apiUrl, routeData);
   }
 
-  // -> CORREÇÃO: O ID é um número
   updateRoute(id: number, routeData: Partial<RouteRequest>): Observable<RouteResponse> {
     return this.http.put<RouteResponse>(`${this.apiUrl}/${id}`, routeData);
   }
 
-  // -> CORREÇÃO: O ID é um número
   deleteRoute(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // -> CORREÇÃO: O ID é um número
   listarRotasPorCaminhao(caminhaoId: number): Observable<RouteResponse[]> {
     return this.http.get<RouteResponse[]>(`${this.apiUrl}/caminhao/${caminhaoId}`);
   }
 
-  // -> CORREÇÃO: O ID é um número
   recalcularRota(id: number): Observable<RouteResponse> {
     return this.http.post<RouteResponse>(`${this.apiUrl}/${id}/recalcular`, {});
   }

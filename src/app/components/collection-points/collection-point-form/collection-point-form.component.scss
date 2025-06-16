@@ -1,9 +1,6 @@
-// Can largely reuse styles from truck-form.component.scss
-// Or create a shared _form-page.scss and import it.
-// For brevity, assuming similar styling to truck-form.
-@use '../../../styles/partials/form-page' as form-page; // Example of using a partial
 
-// Apply shared form page styles
+@use '../../../styles/partials/form-page' as form-page;
+
 :host {
   @include form-page.form-page-styles;
 }

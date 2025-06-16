@@ -46,7 +46,6 @@ export class NetworkGraphComponent implements OnChanges, AfterViewInit {
       edges: visEdges
     };
 
-    // Opções de customização do grafo
     const options = {
       physics: {
         enabled: true,
@@ -55,7 +54,6 @@ export class NetworkGraphComponent implements OnChanges, AfterViewInit {
       },
       nodes: {
         shape: 'box',
-        // -> CORREÇÃO AQUI: 'margin' deve ser um objeto
         margin: {
           top: 10,
           right: 15,
@@ -80,7 +78,6 @@ export class NetworkGraphComponent implements OnChanges, AfterViewInit {
       },
     };
 
-    // Esta linha agora funcionará sem erro de tipo
     this.networkInstance = new Network(this.networkContainer.nativeElement, data, options);
   }
 }

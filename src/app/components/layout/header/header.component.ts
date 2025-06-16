@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router'; // RouterModule for routerLink
+import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { User } from '../../../core/models/user.model';
 import { Observable } from 'rxjs';

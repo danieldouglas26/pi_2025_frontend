@@ -1,4 +1,3 @@
-// src/app/components/itineraries/itinerary-form/itinerary-form.component.ts
 
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -37,7 +36,7 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
   isEditMode = false;
   isLoading = false;
   pageTitle = 'Agendar Novo Roteiro';
-  editId: number | null = null; // -> CORREÇÃO: ID é um número
+  editId: number | null = null;
 
   availableRoutes: RouteResponse[] = [];
   availableTrucks: TruckResponse[] = [];
@@ -49,7 +48,7 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const idParam = this.activatedRoute.snapshot.paramMap.get('id');
     if (idParam) {
-      this.editId = +idParam; // -> CORREÇÃO: Converte para número
+      this.editId = +idParam;
       this.isEditMode = true;
       this.pageTitle = 'Editar Agendamento';
     }
@@ -71,11 +70,10 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
   loadPrerequisites(): void {
     this.isLoading = true;
     const sub = forkJoin({
-      routes: this.routeService.getAllRoutes(), // Retorna array
-      trucks: this.truckService.getAllTrucks()  // Retorna Page
+      routes: this.routeService.getAllRoutes(),
+      trucks: this.truckService.getAllTrucks()
     }).subscribe({
       next: (results) => {
-        // -> CORREÇÃO: Acessar os dados corretamente (array e page.content)
         this.availableRoutes = results.routes || [];
         this.availableTrucks = results.trucks.content || [];
 
@@ -93,7 +91,7 @@ export class ItineraryFormComponent implements OnInit, OnDestroy {
     this.subscriptions.add(sub);
   }
 
-  loadItineraryData(id: number): void { // -> CORREÇÃO: ID é um número
+  loadItineraryData(id: number): void {
     const sub = this.itineraryService.getItineraryById(id).pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({

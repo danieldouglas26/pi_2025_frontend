@@ -8,12 +8,12 @@ import { HttpErrorResponse } from '@angular/common/http';
 
 // Services
 import { StreetService } from '../../../services/street.service';
-import { BairroService } from '../../../services/bairro.service'; // -> CORREÇÃO: Usar BairroService
+import { BairroService } from '../../../services/bairro.service';
 import { NotificationService } from '../../../services/notification.service';
 
 // Models
 import { StreetRequest, StreetResponse } from '../../../core/models/street.model';
-import { BairroResponse } from '../../../core/models/bairro.model'; // -> CORREÇÃO: Usar BairroResponse
+import { BairroResponse } from '../../../core/models/bairro.model';
 import { ApiResponse } from '../../../core/models/api-response.model';
 
 @Component({
@@ -26,7 +26,7 @@ import { ApiResponse } from '../../../core/models/api-response.model';
 export class StreetFormComponent implements OnInit, OnDestroy {
   private fb = inject(FormBuilder);
   private streetService = inject(StreetService);
-  private bairroService = inject(BairroService); // -> CORREÇÃO: Injetar BairroService
+  private bairroService = inject(BairroService);
   private router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private notificationService = inject(NotificationService);
@@ -34,22 +34,22 @@ export class StreetFormComponent implements OnInit, OnDestroy {
 
   streetForm!: FormGroup;
   isEditMode = false;
-  isLoading = true; // Inicia como true para cobrir o carregamento inicial
+  isLoading = true;
   pageTitle = 'Adicionar Nova Rua';
 
-  availableBairros: BairroResponse[] = []; // -> CORREÇÃO: Usar um array de Bairros
+  availableBairros: BairroResponse[] = [];
 
-  private streetId: number | null = null; // -> CORREÇÃO: ID é numérico
+  private streetId: number | null = null;
 
   ngOnInit(): void {
     this.initializeForm();
-    this.loadPrerequisites(); // Carrega os bairros para os seletores
+    this.loadPrerequisites();
 
     const idParam = this.activatedRoute.snapshot.paramMap.get('id');
     if (idParam) {
       this.isEditMode = true;
       this.pageTitle = 'Editar Rua';
-      this.streetId = +idParam; // Converte para número
+      this.streetId = +idParam;
       this.loadStreetData(this.streetId);
     }
   }
@@ -68,10 +68,8 @@ export class StreetFormComponent implements OnInit, OnDestroy {
 
   private loadPrerequisites(): void {
     this.isLoading = true;
-    // Para um dropdown, precisamos de todos os bairros, então pedimos uma página grande.
     const sub = this.bairroService.getAllBairros(0, 1000).pipe(
       finalize(() => {
-        // Se não estivermos no modo de edição, podemos parar o loading aqui.
         if (!this.isEditMode) {
           this.isLoading = false;
         }
@@ -89,9 +87,8 @@ export class StreetFormComponent implements OnInit, OnDestroy {
   }
 
   private loadStreetData(id: number): void {
-    // isLoading já deve ser true vindo do loadPrerequisites
     const sub = this.streetService.getStreetById(id).pipe(
-      finalize(() => this.isLoading = false) // Finaliza o loading geral aqui
+      finalize(() => this.isLoading = false)
     ).subscribe({
       next: (response) => {
         this.streetForm.patchValue(response);

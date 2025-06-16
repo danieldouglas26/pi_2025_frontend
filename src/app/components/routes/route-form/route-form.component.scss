@@ -1,15 +1,8 @@
-// src/app/components/bairros/bairro-form/bairro-form.component.scss
 
-// Importa os estilos de layout de página de formulário compartilhados
 @use '../../../styles/partials/form-page' as form-page;
 
-// Aplica os estilos compartilhados ao host do componente.
-// Isso garante que o cabeçalho, a área de conteúdo e as ações do formulário
-// sejam consistentes com o resto da aplicação.
+
 :host {
   @include form-page.form-page-styles;
 }
 
-// O formulário de bairro é simples e não requer estilos específicos adicionais.
-// Se, no futuro, você adicionar mais elementos a este formulário que precisem
-// de estilização particular, eles podem ser adicionados aqui.

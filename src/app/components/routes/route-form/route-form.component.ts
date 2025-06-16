@@ -149,8 +149,8 @@ export class RouteFormComponent implements OnInit, OnDestroy {
     const routeDataPayload: RouteRequest = {
       nome: formValue.nome,
       caminhaoId: formValue.caminhaoId,
-      origemBairroId: formValue.origemBairroId,
-      destinoBairroId: formValue.destinoBairroId,
+      origemId: formValue.origemBairroId,
+      destinoId: formValue.destinoBairroId,
       tipoResiduo: formValue.tipoResiduo
     };
 

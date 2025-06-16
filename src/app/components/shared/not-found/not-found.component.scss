@@ -2,7 +2,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 120px); // Adjust based on header/footer height if any outside main layout
+  min-height: calc(100vh - 120px);
   text-align: center;
   background-color: #f4f6f8;
 }
@@ -16,7 +16,7 @@
   margin: 0 auto;
 
   .error-icon {
-    color: var(--warning-color, #f39c12); // A warning color
+    color: var(--warning-color, #f39c12);
     margin-bottom: 1.5rem;
   }
 
@@ -36,7 +36,6 @@
   .btn-primary {
     padding: 0.8rem 2rem;
     font-size: 1rem;
-    // Inherit styles from global .btn-primary or define here
     background-color: var(--primary-color, #3498db);
     color: white;
     text-decoration: none;

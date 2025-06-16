@@ -25,8 +25,7 @@
                 <tr>
                   <th>Nome</th>
                   <th>Responsável</th>
-                  <th>Contato</th>
-                  <th>Endereço</th>
+                  <th>E-mail</th>     <th>Telefone</th>   <th>Endereço</th>
                   <th>Resíduos Aceitos</th>
                   <th>Ações</th>
                 </tr>
@@ -34,9 +33,8 @@
               <tbody>
                 <tr *ngFor="let point of response.content">
                   <td>{{ point.nome }}</td>
-                  <td>{{ point.nomeResponsavel }}</td>
-                  <td>{{ point.informacaoContato || 'N/D' }}</td>
-                  <td>{{ point.endereco }}</td>
+                  <td>{{ point.responsavel }}</td>
+                  <td>{{ point.email || 'N/D' }}</td>     <td>{{ point.telefone || 'N/D' }}</td>   <td>{{ point.endereco }}</td>
                   <td>
                     <span *ngFor="let type of point.tiposResiduo; let last = last" class="badge">
                       {{ type }}{{ !last ? ', ' : '' }}
@@ -44,10 +42,12 @@
                     <span *ngIf="!point.tiposResiduo?.length">-</span>
                   </td>
                   <td class="actions-cell">
-                    <a [routerLink]="['/collection-points/edit', point.id]" class="btn btn-sm btn-icon btn-edit" title="Editar Ponto">
+                    <a [routerLink]="['/collection-points/edit', point.id]" class="btn btn-sm btn-icon btn-edit"
+                      title="Editar Ponto">
                       <i class="fas fa-edit"></i> Editar
                     </a>
-                    <button (click)="deleteCollectionPoint(point.id)" class="btn btn-sm btn-icon btn-delete" title="Excluir Ponto" [disabled]="isLoading">
+                    <button (click)="deleteCollectionPoint(point.id)" class="btn btn-sm btn-icon btn-delete"
+                      title="Excluir Ponto" [disabled]="isLoading">
                       <i class="fas fa-trash-alt"></i> Excluir
                     </button>
                   </td>

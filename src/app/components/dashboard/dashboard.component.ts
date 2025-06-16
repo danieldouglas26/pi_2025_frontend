@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError, finalize } from 'rxjs/operators';
 
-// --- Serviços ---
 import { AuthService } from '../../services/auth.service';
 import { TruckService } from '../../services/truck.service';
 import { CollectionPointService } from '../../services/collection-point.service';
@@ -13,7 +12,6 @@ import { ItineraryService } from '../../services/itinerary.service';
 import { BairroService } from '../../services/bairro.service';
 import { StreetService } from '../../services/street.service';
 
-// --- Modelos ---
 import { User } from '../../core/models/user.model';
 import { Page } from '../../core/models/page.model';
 import { GraphData, GraphNode, GraphEdge } from '../../core/models/graph.model';
@@ -22,10 +20,8 @@ import { CollectionPointResponse } from '../../core/models/collection-point.mode
 import { RouteResponse } from '../../core/models/route.model';
 import { ItineraryResponse } from '../../core/models/itinerary.model';
 
-// --- Componentes ---
 import { NetworkGraphComponent } from '../shared/network-graph/network-graph.component';
 
-// Interface para os dados do resumo do dashboard
 interface DashboardSummary {
   totalTrucks: number;
   totalCollectionPoints: number;
@@ -33,7 +29,6 @@ interface DashboardSummary {
   totalItinerariesToday: number;
 }
 
-// Constantes de Fallback
 const EMPTY_PAGE: Page<any> = { content: [], pageNumber: 0, pageSize: 0, totalElements: 0, totalPages: 0, last: true };
 const EMPTY_LIST: any[] = [];
 
@@ -45,7 +40,6 @@ const EMPTY_LIST: any[] = [];
   styleUrls: ['./dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
-  // Serviços Injetados
   authService = inject(AuthService);
   truckService = inject(TruckService);
   collectionPointService = inject(CollectionPointService);
@@ -54,13 +48,11 @@ export class DashboardComponent implements OnInit {
   bairroService = inject(BairroService);
   streetService = inject(StreetService);
 
-  // Propriedades para o Resumo
   currentUser$: Observable<User | null> = this.authService.currentUser$;
   summaryData$!: Observable<DashboardSummary | null>;
   isLoadingSummary = false;
   summaryError: string | null = null;
 
-  // Propriedades para o Grafo
   graphData$!: Observable<GraphData | null>;
   isLoadingGraph = false;
   graphError: string | null = null;

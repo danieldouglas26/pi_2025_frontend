@@ -29,5 +29,5 @@ export interface ItineraryResponse {
   distanciaTotal: number;
   tipoResiduo: string;
   concluido: boolean;
-  paradas: ParadaItinerarioResponse[]; // Usa a interface corrigida
+  paradas: ParadaItinerarioResponse[];
 }

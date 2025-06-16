@@ -1,4 +1,3 @@
-// src/app/components/itineraries/itinerary-planner/itinerary-planner.component.ts
 
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -36,7 +35,6 @@ export class ItineraryPlannerComponent implements OnInit {
   loadItineraries(): void {
     this.isLoading = true;
     this.hasError = false;
-    // -> CORREÇÃO: Chamando o método mais claro do serviço
     this.itineraries$ = this.itineraryService.getItinerariesByDate(this.selectedDate).pipe(
       catchError(error => {
         this.hasError = true;
@@ -55,7 +53,7 @@ export class ItineraryPlannerComponent implements OnInit {
     }
   }
 
-  deleteItinerary(itineraryId: number | undefined): void { // -> CORREÇÃO: ID é um número
+  deleteItinerary(itineraryId: number | undefined): void {
     if (typeof itineraryId !== 'number') {
       this.notificationService.error("ID do itinerário inválido.");
       return;
@@ -63,14 +61,13 @@ export class ItineraryPlannerComponent implements OnInit {
 
     const confirmDelete = confirm(`Tem certeza que deseja excluir o agendamento ID: ${itineraryId}?`);
     if (confirmDelete) {
-      // Usando uma flag separada para o botão de deletar
       const targetButton = event?.currentTarget as HTMLButtonElement;
       if(targetButton) targetButton.disabled = true;
 
       this.itineraryService.deleteItinerary(itineraryId).subscribe({
         next: () => {
           this.notificationService.success('Agendamento excluído com sucesso!');
-          this.loadItineraries(); // Recarrega a lista
+          this.loadItineraries();
         },
         error: (err: HttpErrorResponse) => {
           const message = err.error?.message || 'Erro ao excluir o agendamento.';
