@@ -6,5 +6,5 @@ export interface User {
 
 export interface LoginCredentials {
   username: string; // Or email
-  passwordHash: string; // Or just password, backend handles hashing
+  password: string; // Or just password, backend handles hashing
 }

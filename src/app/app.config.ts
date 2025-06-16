@@ -8,7 +8,7 @@ import { routes } from './app.routes'; // Suas rotas
 
 export const appConfig: ApplicationConfig = {
   providers: [
-        provideRouter(routes, withDebugTracing()), // Adicione withDebugTracing() aqui
+        provideRouter(routes), // Adicione withDebugTracing() aqui
 
     provideHttpClient(withInterceptorsFromDi()), // Habilita interceptores baseados em DI
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true } // Registre o interceptor

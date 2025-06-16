@@ -47,8 +47,8 @@ export class LoginComponent {
     this.isLoading = true;
     const credentials: LoginCredentials = {
         username: this.loginForm.value.username,
-        // Password should be sent as is; backend handles hashing 
-        passwordHash: this.loginForm.value.password
+        // Password should be sent as is; backend handles hashing
+        password: this.loginForm.value.password
     };
 
     this.authService.login(credentials).subscribe({
