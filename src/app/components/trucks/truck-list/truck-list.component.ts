@@ -1,3 +1,5 @@
+// src/app/components/trucks/truck-list/truck-list.component.ts
+
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
@@ -34,15 +36,6 @@ export class TruckListComponent implements OnInit {
     this.isLoading = true;
     this.hasError = false;
     this.trucks$ = this.truckService.getAllTrucks().pipe(
-      tap(page => {
-        console.log('DADOS COMPLETOS RECEBIDOS NO COMPONENTE - Página:', page);
-        // Inspecione cada caminhão para ver o ID
-        if (page && page.content) {
-          page.content.forEach(truck => {
-            console.log(`Caminhão: Placa=<span class="math-inline">\{truck\.placa\}, ID\=</span>{truck.id}, Tipo=${typeof truck.id}`);
-          });
-        }
-      }),
       catchError(error => {
         this.hasError = true;
         this.errorMessage = error.message || 'Ocorreu um erro inesperado ao carregar os caminhões.';
@@ -53,8 +46,10 @@ export class TruckListComponent implements OnInit {
     );
   }
 
-  deleteTruck(truckId: string | undefined): void {
-    if (!truckId) {
+  // -> CORREÇÃO: O ID é um número.
+  deleteTruck(truckId: number | undefined): void {
+    // -> CORREÇÃO: Melhorar a validação para o tipo 'number'.
+    if (typeof truckId !== 'number') {
       this.notificationService.error('ID do Caminhão inválido. Não é possível excluir.');
       return;
     }
@@ -65,7 +60,7 @@ export class TruckListComponent implements OnInit {
       this.truckService.deleteTruck(truckId).subscribe({
         next: () => {
           this.notificationService.success('Caminhão excluído com sucesso!');
-          this.loadTrucks();
+          this.loadTrucks(); // Recarrega a lista
         },
         error: (err: HttpErrorResponse) => {
           const apiResponse = err.error as ApiResponse<null>;

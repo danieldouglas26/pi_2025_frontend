@@ -1,18 +1,23 @@
+// src/app/core/models/truck.model.ts
+
 // Para ENVIAR dados ao criar/atualizar um caminhão
 export interface TruckRequest {
-  placa: string; // Renomeado de 'licensePlate'
-  nomeMotorista: string; // Renomeado de 'driverName'
+  placa: string;
+  nomeMotorista: string;
   capacidade: number;
-  tipoResiduos: string[]; // Renomeado de 'allowedResidueTypes' e nome do campo no backend
+  tipoResiduos: string[];
 }
 
 // Para RECEBER dados de um caminhão
 export interface TruckResponse {
-  id: string; // UUID é representado como string no TS
-  placa: string; // Renomeado de 'licensePlate'
-  nomeMotorista: string; // Renomeado de 'driverName'
+  // -> CORREÇÃO: O ID no backend é um Long, que corresponde a 'number' em TypeScript.
+  id: number;
+  placa: string;
+  nomeMotorista: string;
   capacidade: number;
-  tipoResiduos: string[]; // Renomeado de 'allowedResidueTypes'
-  dataCriacao: string; // LocalDateTime no backend -> string no frontend
-  dataAtualizacao: string; // LocalDateTime no backend -> string no frontend
+  tipoResiduos: string[];
+
+  // -> CORREÇÃO: Removidos, pois o CaminhaoResponseDTO do backend não envia esses campos.
+  // dataCriacao: string;
+  // dataAtualizacao: string;
 }

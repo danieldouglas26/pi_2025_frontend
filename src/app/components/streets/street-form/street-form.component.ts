@@ -23,7 +23,7 @@ const EMPTY_PAGE: Page<any> = { content: [], pageNumber: 0, pageSize: 0, totalEl
 @Component({
   selector: 'app-street-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgIf, NgFor, AsyncPipe], // Verifique os imports aqui
+  imports: [CommonModule, ReactiveFormsModule, NgIf, NgFor], // Verifique os imports aqui
   templateUrl: './street-form.component.html',
   styleUrls: ['./street-form.component.scss']
 })

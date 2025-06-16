@@ -1,16 +1,14 @@
+// src/app/components/trucks/truck-form/truck-form.component.ts
+
 import { Component, OnInit, inject, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router'; // Importe ActivatedRoute
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-
-// Services
 import { TruckService } from '../../../services/truck.service';
 import { NotificationService } from '../../../services/notification.service';
-
-// Models & Enums
 import { TruckRequest, TruckResponse } from '../../../core/models/truck.model';
 import { ApiResponse } from '../../../core/models/api-response.model';
 import { ResidueType } from '../../../core/models/enums';
@@ -28,7 +26,7 @@ export class TruckFormComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private notificationService = inject(NotificationService);
   private subscriptions = new Subscription();
-  private activatedRoute = inject(ActivatedRoute); // Injeção do ActivatedRoute
+  private activatedRoute = inject(ActivatedRoute);
 
   truckForm!: FormGroup;
   isEditMode = false;
@@ -37,29 +35,27 @@ export class TruckFormComponent implements OnInit, OnDestroy {
 
   readonly availableResidueTypes = Object.values(ResidueType);
 
-  @Input() id?: string; // Mantemos o @Input por compatibilidade, mas o ActiveRoute é mais robusto aqui
+  // -> CORREÇÃO: O ID é um número.
+  @Input() id?: number;
 
   constructor() {
     this.initializeForm();
   }
 
   ngOnInit(): void {
-    // Obtenha o ID da rota no início
-    const routeId = this.activatedRoute.snapshot.paramMap.get('id');
-    console.log('ID do caminhão (ActivatedRoute):', routeId); // Log para depuração
+    // -> CORREÇÃO: Obter o ID da rota e converter para número.
+    const routeIdStr = this.activatedRoute.snapshot.paramMap.get('id');
+    const routeId = routeIdStr ? +routeIdStr : null; // O '+' converte a string para número
 
-    // SEMPRE construa os checkboxes primeiro, mesmo que vazios.
-    // Isso garante que o FormArray esteja com os controles prontos para o patchValue.
     this.buildResidueTypesCheckboxes();
 
-    if (routeId) { // Use routeId aqui
-      this.id = routeId; // Atribua ao @Input id, se ainda o usar
+    if (routeId !== null && !isNaN(routeId)) { // Verifica se a conversão foi bem-sucedida
+      this.id = routeId;
       this.isEditMode = true;
       this.pageTitle = 'Editar Caminhão';
       this.loadTruckData(this.id);
     } else {
       this.pageTitle = 'Adicionar Novo Caminhão';
-      // No modo de criação, os checkboxes já foram construídos acima.
     }
   }
 
@@ -81,9 +77,8 @@ export class TruckFormComponent implements OnInit, OnDestroy {
   }
 
   private buildResidueTypesCheckboxes(selectedTypes: string[] = []): void {
-    this.tipoResiduosFormArray.clear(); // Limpa quaisquer controles existentes
+    this.tipoResiduosFormArray.clear();
     this.availableResidueTypes.forEach(type => {
-      // Garante que `selectedTypes` é um array, mesmo se o backend retornar null/undefined
       const isChecked = (selectedTypes ?? []).includes(type);
       this.tipoResiduosFormArray.push(this.fb.control(isChecked));
     });
@@ -95,39 +90,22 @@ export class TruckFormComponent implements OnInit, OnDestroy {
       .filter((value: string | null): value is string => value !== null);
   }
 
-  loadTruckData(truckId: string): void {
+  // -> CORREÇÃO: O ID é um número.
+  loadTruckData(truckId: number): void {
     this.isLoading = true;
     const sub = this.truckService.getTruckById(truckId).pipe(
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: (response: TruckResponse) => {
-        // Preenche os campos do formulário principal primeiro
         this.truckForm.patchValue({
           placa: response.placa,
           nomeMotorista: response.nomeMotorista,
           capacidade: response.capacidade,
         });
-        // SÓ DEPOIS de patchValue dos campos principais, atualiza o FormArray
         this.buildResidueTypesCheckboxes(response.tipoResiduos);
       },
       error: (err: HttpErrorResponse) => {
-        const apiResponse = err.error as ApiResponse<null>;
-        if (err.status === 404) {
-          this.notificationService.error('Caminhão não encontrado.');
-        } else if (err.status === 400 && apiResponse?.errors && typeof apiResponse.errors === 'object') {
-          this.notificationService.error('Foram encontrados erros de validação.');
-          Object.keys(apiResponse.errors).forEach(fieldName => {
-            const control = this.truckForm.get(fieldName);
-            if (control) {
-              control.setErrors({ serverError: (apiResponse.errors as any)[fieldName] });
-            }
-          });
-        } else if (apiResponse?.message) {
-          this.notificationService.error(apiResponse.message);
-        } else {
-          this.notificationService.error('Ocorreu um erro inesperado ao buscar os dados do caminhão.');
-        }
-        console.error('Erro detalhado:', err);
+        this.notificationService.error('Erro ao carregar dados do caminhão.');
         this.router.navigate(['/trucks']);
       }
     });
@@ -153,33 +131,25 @@ export class TruckFormComponent implements OnInit, OnDestroy {
 
     let operation$: Observable<TruckResponse>;
 
-    if (this.isEditMode && this.id) {
+    // -> CORREÇÃO: Garante que 'this.id' é um número antes de usar.
+    if (this.isEditMode && typeof this.id === 'number') {
       operation$ = this.truckService.updateTruck(this.id, truckData);
     } else {
       operation$ = this.truckService.createTruck(truckData);
     }
 
     const sub = operation$.pipe(finalize(() => this.isLoading = false)).subscribe({
-      next: (response: TruckResponse) => {
+      next: () => {
         this.notificationService.success(`Caminhão ${this.isEditMode ? 'atualizado' : 'criado'} com sucesso!`);
         this.router.navigate(['/trucks']);
       },
       error: (err: HttpErrorResponse) => {
         const apiResponse = err.error as ApiResponse<null>;
-        if (err.status === 400 && apiResponse?.errors && typeof apiResponse.errors === 'object') {
-          this.notificationService.error('Foram encontrados erros de validação.');
-          Object.keys(apiResponse.errors).forEach(fieldName => {
-            const control = this.truckForm.get(fieldName);
-            if (control) {
-              control.setErrors({ serverError: (apiResponse.errors as any)[fieldName] });
-            }
-          });
-        } else if (apiResponse?.message) {
+        if (apiResponse?.message) {
           this.notificationService.error(apiResponse.message);
         } else {
           this.notificationService.error('Ocorreu um erro inesperado. Tente novamente.');
         }
-        console.error('Erro detalhado:', err);
       },
     });
     this.subscriptions.add(sub);
