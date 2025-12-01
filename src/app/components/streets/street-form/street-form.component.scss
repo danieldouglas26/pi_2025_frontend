@@ -1,0 +1,51 @@
+@use '../../../styles/partials/form-page' as form-page;
+
+:host {
+  @include form-page.form-page-styles;
+}
+
+.data-form {
+  .section-subtitle {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: -0.8rem;
+    margin-bottom: 1rem;
+    &.small-text {
+        font-size: 0.75rem;
+        font-style: italic;
+    }
+  }
+
+  .no-data-message.small {
+      font-size: 0.9rem;
+      padding: 0.8rem;
+  }
+
+  .route-summary {
+      background-color: #f9f9f9;
+      padding: 1.5rem;
+      border-radius: 6px;
+      border: 1px solid #eee;
+      margin-top: 1.5rem;
+
+      .section-title {
+          color: var(--secondary-text-color, #555);
+          border-bottom-color: var(--secondary-text-color, #555);
+      }
+
+      p {
+          font-size: 0.95rem;
+          margin-bottom: 0.6rem;
+          strong { font-weight: 600; }
+      }
+      .point-list {
+          list-style: none;
+          padding-left: 0;
+          li {
+              padding: 0.3rem 0;
+              border-bottom: 1px dashed #eee;
+              &:last-child { border-bottom: none; }
+          }
+      }
+  }
+}

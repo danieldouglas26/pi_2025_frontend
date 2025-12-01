@@ -1,0 +1,71 @@
+<div class="dashboard-container">
+  <header class="dashboard-header">
+    <h1 *ngIf="currentUser$ | async as user">Bem-vindo(a) de volta, {{ user.username }}!</h1>
+    <p>Aqui está uma visão rápida do seu sistema GreenLog.</p>
+  </header>
+
+  <div *ngIf="isLoadingSummary" class="loading-indicator">
+    <i class="fas fa-spinner fa-spin"></i> Carregando dados do resumo...
+  </div>
+  <div *ngIf="summaryError && !isLoadingSummary" class="error-message-full">
+    <i class="fas fa-exclamation-triangle"></i> {{ summaryError }}
+  </div>
+
+  <ng-container *ngIf="summaryData$ | async as summary; else noSummary">
+    <section class="summary-cards" *ngIf="!isLoadingSummary && !summaryError">
+      <div class="card">
+        <div class="card-icon"><i class="fas fa-truck"></i></div>
+        <div class="card-content">
+          <h3>Total de Caminhões</h3>
+          <p class="card-value">{{ summary.totalTrucks }}</p>
+          <a routerLink="/trucks" class="card-link">Gerenciar Caminhões <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fas fa-map-marker-alt"></i></div>
+        <div class="card-content">
+          <h3>Pontos de Coleta</h3>
+          <p class="card-value">{{ summary.totalCollectionPoints }}</p>
+          <a routerLink="/collection-points" class="card-link">Gerenciar Pontos <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fas fa-route"></i></div>
+        <div class="card-content">
+          <h3>Rotas Definidas</h3>
+          <p class="card-value">{{ summary.totalRoutes }}</p>
+          <a routerLink="/routes" class="card-link">Gerenciar Rotas <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-icon"><i class="fas fa-calendar-alt"></i></div>
+        <div class="card-content">
+          <h3>Roteiros Hoje</h3>
+          <p class="card-value">{{ summary.totalItinerariesToday }}</p>
+          <a routerLink="/itineraries" class="card-link">Planejar Roteiros <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </section>
+  </ng-container>
+  <ng-template #noSummary>
+    <p *ngIf="!isLoadingSummary && !summaryError">Não foi possível carregar os dados do resumo.</p>
+  </ng-template>
+
+  <hr>
+
+  <section class="graph-section">
+    <h2>Mapa de Bairros e Ruas</h2>
+    <div *ngIf="isLoadingGraph" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i> Carregando mapa...
+    </div>
+    <div *ngIf="graphError && !isLoadingGraph" class="error-message-full">
+      <i class="fas fa-exclamation-triangle"></i> {{ graphError }}
+    </div>
+    <ng-container *ngIf="graphData$ | async as graph; else noGraph">
+      <app-network-graph [nodes]="graph.nodes" [edges]="graph.edges" *ngIf="!isLoadingGraph && !graphError"></app-network-graph>
+    </ng-container>
+    <ng-template #noGraph>
+      <p *ngIf="!isLoadingGraph && !graphError">Não foi possível exibir o mapa de bairros e ruas.</p>
+    </ng-template>
+  </section>
+</div>

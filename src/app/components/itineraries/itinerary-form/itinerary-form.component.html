@@ -1,0 +1,58 @@
+<div class="form-page-container">
+  <header class="form-header">
+    <h1>{{ pageTitle }}</h1>
+    <button type="button" (click)="cancel()" class="btn btn-link-secondary" [disabled]="isLoading">
+      <i class="fas fa-arrow-left"></i> Voltar para o Planejador
+    </button>
+  </header>
+
+  <div class="form-content">
+    <div *ngIf="isLoading" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i>
+      {{ isEditMode ? 'Carregando dados do agendamento...' : 'Carregando pré-requisitos...'}}
+    </div>
+
+    <form [formGroup]="itineraryForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading" class="data-form">
+      <div class="form-section">
+        <h3 class="section-title">Detalhes do Agendamento</h3>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="rotaId">Rota <span class="required-asterisk">*</span></label>
+            <select id="rotaId" formControlName="rotaId" [class.invalid-field]="itineraryForm.get('rotaId')?.invalid && itineraryForm.get('rotaId')?.touched"> <option [ngValue]="null" disabled>-- Selecione uma Rota --</option>
+              <option *ngFor="let route of availableRoutes" [ngValue]="route.id">
+                {{ route.nome }} </option>
+            </select>
+            <div *ngIf="itineraryForm.get('rotaId')?.invalid && itineraryForm.get('rotaId')?.touched" class="error-message"> A seleção da rota é obrigatória.
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="caminhaoId">Caminhão <span class="required-asterisk">*</span></label>
+            <select id="caminhaoId" formControlName="caminhaoId" [class.invalid-field]="itineraryForm.get('caminhaoId')?.invalid && itineraryForm.get('caminhaoId')?.touched"> <option [ngValue]="null" disabled>-- Selecione um Caminhão --</option>
+              <option *ngFor="let truck of availableTrucks" [ngValue]="truck.id">
+                {{ truck.placa }} ({{ truck.nomeMotorista }}) </option>
+            </select>
+            <div *ngIf="itineraryForm.get('caminhaoId')?.invalid && itineraryForm.get('caminhaoId')?.touched" class="error-message"> A seleção do caminhão é obrigatória.
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="data">Data da Coleta <span class="required-asterisk">*</span></label>
+            <input type="date" id="data" formControlName="data" [class.invalid-field]="itineraryForm.get('data')?.invalid && itineraryForm.get('data')?.touched"> <div *ngIf="itineraryForm.get('data')?.invalid && itineraryForm.get('data')?.touched" class="error-message"> A data da coleta é obrigatória.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" [disabled]="itineraryForm.invalid || isLoading" class="btn btn-primary">
+          <i class="fas" [ngClass]="isLoading ? 'fa-spinner fa-spin' : (isEditMode ? 'fa-save' : 'fa-calendar-check')"></i>
+          {{ isLoading ? 'Salvando...' : (isEditMode ? 'Atualizar Agendamento' : 'Criar Agendamento') }}
+        </button>
+        <button type="button" (click)="cancel()" class="btn btn-secondary" [disabled]="isLoading">
+          <i class="fas fa-times-circle"></i> Cancelar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="list-page-container">
+  <header class="list-header">
+    <h1>Gerenciar Ruas</h1>
+    <a routerLink="/streets/new" class="btn btn-primary">
+      <i class="fas fa-plus-circle"></i> Adicionar Nova Rua
+    </a>
+  </header>
+
+  <div class="content-area">
+    <div *ngIf="isLoading" class="loading-indicator">
+      <i class="fas fa-spinner fa-spin"></i> Carregando ruas...
+    </div>
+
+    <div *ngIf="hasError && !isLoading" class="error-message-full">
+      <i class="fas fa-exclamation-triangle"></i> {{ errorMessage }}
+      <button (click)="loadStreets()" class="btn btn-sm btn-secondary">Tentar Novamente</button>
+    </div>
+
+    <ng-container *ngIf="streets$ | async as response">
+      <div *ngIf="!isLoading && !hasError">
+        <ng-container *ngIf="response?.content?.length; else noStreetsTemplate">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Origem</th>
+                  <th>Destino</th>
+                  <th>Distância (km)</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let street of response.content">
+                  <td>{{ street.origemNome }}</td>
+                  <td>{{ street.destinoNome }}</td>
+                  <td>{{ street.distancia | number:'1.1-2' }}</td>
+                  <td class="actions-cell">
+                    <a [routerLink]="['/streets/edit', street.id]"
+                       class="btn btn-sm btn-icon btn-edit" title="Editar Rua">
+                      <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <button (click)="deleteStreet(street.id)" class="btn btn-sm btn-icon btn-delete" title="Excluir Rua" [disabled]="isLoading">
+                      <i class="fas fa-trash-alt"></i> Excluir
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-container>
+      </div>
+      <ng-template #noStreetsTemplate>
+        <div *ngIf="!isLoading && !hasError && response && !response.content?.length" class="no-data-message">
+          <i class="fas fa-info-circle"></i> Nenhuma rua encontrada. Que tal adicionar uma?
+        </div>
+      </ng-template>
+    </ng-container>
+</div>
