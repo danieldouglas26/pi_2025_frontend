@@ -2,17 +2,17 @@
 
 O projeto foi criado com o ituito de atender o tema do PI (Projeto integrador) da faculdade SENAI FATESG usando [Angular CLI](https://github.com/angular/angular-cli) versão 20.0.1.
 
-## Alunos:
-
-- Daniel Douglas
-- José Carlos
-- Lucas Reis
-
 Esta aplicação é a camada de apresentação e interação, responsável por:
 1. Gerenciar o CRUD de todas as entidades do sistema (Caminhões, Bairros, Ruas, Pontos de Coleta).
 2. Fornecer o Planejador de Itinerários com visualização por data.
 3. Exibir o Mapa de Bairros e Ruas (Grafo) no Dashboard.
 4. Implementar a autenticação de usuários.
+
+## Alunos:
+
+- Daniel Douglas
+- José Carlos
+- Lucas Reis
 
 ## 🚀 Tecnologias Utilizadas
 
