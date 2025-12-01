@@ -1,6 +1,0 @@
-
-@use '../../../styles/partials/list-page' as list-page;
-
-:host {
-  @include list-page.list-page-styles;
-}

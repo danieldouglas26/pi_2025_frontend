@@ -1,9 +1,0 @@
-<header class="app-header">
-  <div class="logo">
-    <a routerLink="/dashboard">GreenLog Solutions</a>
-  </div>
-  <nav class="user-nav" *ngIf="currentUser$ | async as user">
-    <span class="welcome-message">Bem vindo de volta, {{ user.username }}</span>
-    <button type="button" (click)="logout()" class="btn btn-logout">Sair</button>
-  </nav>
-</header>
