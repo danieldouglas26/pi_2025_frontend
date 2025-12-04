@@ -17,4 +17,10 @@
   padding: 1.5rem;
   overflow-y: auto;
   background-color: #f9f9f9;
+  transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
+}
+
+.main-layout.sidebar-closed {
+  .content-wrapper {
+  }
 }

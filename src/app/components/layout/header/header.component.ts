@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { User } from '../../../core/models/user.model';
 import { Observable } from 'rxjs';
-
+import { UIService } from '../../../services/ui.service';
 @Component({
   selector: 'app-header',
   standalone: true,
@@ -15,8 +15,11 @@ import { Observable } from 'rxjs';
 export class HeaderComponent {
   authService = inject(AuthService);
   currentUser$: Observable<User | null> = this.authService.currentUser$;
-
+  uiService = inject(UIService);
   logout(): void {
     this.authService.logout();
+  }
+ toggleSidebar(): void {
+    this.uiService.toggleSidebar();
   }
 }

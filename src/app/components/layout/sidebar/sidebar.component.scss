@@ -1,10 +1,12 @@
 .app-sidebar {
   width: 260px;
+  flex-shrink: 0;
   background-color: var(--sidebar-bg, #34495e);
   padding: 1.5rem 0;
   color: var(--sidebar-text-color, #ecf0f1);
   height: 100%;
   box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease-in-out;
 
   nav ul {
     list-style-type: none;
