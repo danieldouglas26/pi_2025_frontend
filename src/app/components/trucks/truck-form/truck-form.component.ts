@@ -62,7 +62,7 @@ export class TruckFormComponent implements OnInit, OnDestroy {
 
   private initializeForm(): void {
     this.truckForm = this.fb.group({
-      placa: ['', [Validators.required, Validators.pattern('^[A-Z]{3}-?[0-9][A-Z0-9][0-9]{2}$')]],
+      placa: ['', [Validators.required, Validators.pattern('^[A-Z]{3}-?[0-9][A-Z][0-9]{2}$')]],
       nomeMotorista: ['', [Validators.required, Validators.minLength(3)]],
       capacidade: [null, [Validators.required, Validators.min(1)]],
       tipoResiduos: this.fb.array([], [Validators.required, Validators.minLength(1)])
