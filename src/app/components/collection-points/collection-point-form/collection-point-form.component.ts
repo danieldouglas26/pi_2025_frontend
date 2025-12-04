@@ -5,13 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, of } from 'rxjs';
 import { finalize, catchError, map } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-
-// Services
 import { CollectionPointService } from '../../../services/collection-point.service';
 import { NotificationService } from '../../../services/notification.service';
 import { BairroService } from '../../../services/bairro.service';
-
-// Models & Enums
 import { CollectionPointRequest, CollectionPointResponse } from '../../../core/models/collection-point.model';
 import { ApiResponse } from '../../../core/models/api-response.model';
 import { ResidueType } from '../../../core/models/enums';
@@ -32,21 +28,18 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
   private subscriptions = new Subscription();
   private activatedRoute = inject(ActivatedRoute);
   private bairroService = inject(BairroService);
-
   pointForm!: FormGroup;
   isEditMode = false;
   isLoading = false;
   pageTitle = 'Adicionar Novo Ponto de Coleta';
   bairros$!: Observable<BairroResponse[]>;
 
-  // Garantindo que a ordem dos tipos de resíduo seja consistente
-  // A ordem do Object.values() é geralmente a ordem de declaração no enum.
   readonly availableResidueTypes: string[] = Object.values(ResidueType);
 
   @Input() id?: number;
 
   constructor() {
-    // Inicialize o formulário aqui com o FormArray de tiposDeResiduo pronto para os checkboxes
+
     this.initializeForm();
   }
 
@@ -63,7 +56,7 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
       this.loadPointData(this.id);
     } else {
       this.pageTitle = 'Adicionar Novo Ponto de Coleta';
-      // Para o modo de criação, initialize os checkboxes com nada selecionado
+
       this.buildResidueTypesCheckboxes();
     }
   }
@@ -72,8 +65,8 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
-  // Otimização: Inicialize o FormArray de tiposDeResiduo aqui
-  // para que os controles já existam para o *ngFor no HTML.
+
+
   private initializeForm(): void {
     this.pointForm = this.fb.group({
       nome: ['', [Validators.required, Validators.minLength(3)]],
@@ -94,9 +87,7 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
   }
 
   private buildResidueTypesCheckboxes(selectedTypes: string[] = []): void {
-    while (this.tiposDeResiduoFormArray.length !== 0) {
-      this.tiposDeResiduoFormArray.removeAt(0);
-    }
+    this.tiposDeResiduoFormArray.clear();
 
     this.availableResidueTypes.forEach(type => {
       const isChecked = (selectedTypes ?? []).includes(type);
@@ -108,17 +99,17 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
     }
   }
 
-private getSelectedResidueTypesFromForm(): string[] {
-  return this.tiposDeResiduoFormArray.value
-    .map((checked: boolean, i: number) => {
-      if (checked) {
-        const originalType = this.availableResidueTypes[i];
-        return originalType;
-      }
-      return null;
-    })
-    .filter((value: string | null): value is string => value !== null);
-}
+  private getSelectedResidueTypesFromForm(): string[] {
+    return this.tiposDeResiduoFormArray.value
+      .map((checked: boolean, i: number) => {
+        if (checked) {
+          const originalType = this.availableResidueTypes[i];
+          return originalType;
+        }
+        return null;
+      })
+      .filter((value: string | null): value is string => value !== null);
+  }
   private loadBairros(): void {
     this.bairros$ = this.bairroService.getAllBairros(0, 1000).pipe(
       map(page => page.content),
