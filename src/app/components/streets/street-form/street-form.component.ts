@@ -1,17 +1,13 @@
 import { Component, OnInit, inject, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, ValidationErrors, AbstractControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-
-// Services
 import { StreetService } from '../../../services/street.service';
 import { BairroService } from '../../../services/bairro.service';
 import { NotificationService } from '../../../services/notification.service';
-
-// Models
 import { StreetRequest, StreetResponse } from '../../../core/models/street.model';
 import { BairroResponse } from '../../../core/models/bairro.model';
 import { ApiResponse } from '../../../core/models/api-response.model';
@@ -37,11 +33,15 @@ export class StreetFormComponent implements OnInit, OnDestroy {
   isLoading = true;
   pageTitle = 'Adicionar Nova Rua';
 
+
+  isSubmitted = false;
+
   availableBairros: BairroResponse[] = [];
 
   private streetId: number | null = null;
 
   ngOnInit(): void {
+
     this.initializeForm();
     this.loadPrerequisites();
 
@@ -58,11 +58,35 @@ export class StreetFormComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+
+  static originsAndDestinationsMustBeDifferent(): ValidatorFn {
+    return (group: AbstractControl): ValidationErrors | null => {
+      const origemIdControl = group.get('origemId');
+      const destinoIdControl = group.get('destinoId');
+
+      if (!origemIdControl || !destinoIdControl || origemIdControl.value === null || destinoIdControl.value === null) {
+
+        return null;
+      }
+
+      if (origemIdControl.value === destinoIdControl.value) {
+
+        return { sameOriginAndDestination: true };
+      }
+
+      return null;
+    };
+  }
+
+
   private initializeForm(): void {
     this.streetForm = this.fb.group({
       origemId: [null, Validators.required],
       destinoId: [null, Validators.required],
       distancia: [null, [Validators.required, Validators.min(0.01)]]
+    }, {
+
+      validators: StreetFormComponent.originsAndDestinationsMustBeDifferent()
     });
   }
 
@@ -102,15 +126,19 @@ export class StreetFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
+
+    this.isSubmitted = true;
+
     if (this.streetForm.invalid) {
       this.streetForm.markAllAsTouched();
-      this.notificationService.error('Por favor, corrija os erros no formulário.');
-      return;
-    }
 
-    if (this.streetForm.value.origemId === this.streetForm.value.destinoId) {
+
+      if (this.streetForm.errors?.['sameOriginAndDestination']) {
         this.notificationService.error('A origem e o destino não podem ser o mesmo bairro.');
-        return;
+      } else {
+        this.notificationService.error('Por favor, corrija os erros no formulário.');
+      }
+      return;
     }
 
     this.isLoading = true;
