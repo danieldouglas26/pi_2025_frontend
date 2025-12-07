@@ -8,8 +8,10 @@
       <div class="form-field">
         <label for="username">Username</label>
         <input type="text" id="username" formControlName="username" placeholder="admin"
-               [class.invalid-field]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
-        <div *ngIf="loginForm.get('username')?.invalid && (loginForm.get('username')?.dirty || loginForm.get('username')?.touched)" class="error-message">
+          [class.invalid-field]="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+        <div
+          *ngIf="loginForm.get('username')?.invalid && (loginForm.get('username')?.dirty || loginForm.get('username')?.touched)"
+          class="error-message">
           <span *ngIf="loginForm.get('username')?.errors?.['required']">Username is required.</span>
           <span *ngIf="loginForm.get('username')?.errors?.['minlength']">Username must be at least 3 characters.</span>
         </div>
@@ -18,10 +20,13 @@
       <div class="form-field">
         <label for="password">Password</label>
         <input type="password" id="password" formControlName="password" placeholder="•••••••• (password123)"
-               [class.invalid-field]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-        <div *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)" class="error-message">
+          [class.invalid-field]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+        <div
+          *ngIf="loginForm.get('password')?.invalid && (loginForm.get('password')?.dirty || loginForm.get('password')?.touched)"
+          class="error-message">
           <span *ngIf="loginForm.get('password')?.errors?.['required']">Password is required.</span>
-           <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Senha tem que ter pelo menos 6 caracteres.</span>
+          <span *ngIf="loginForm.get('password')?.errors?.['minlength']">Senha tem que ter pelo menos 6
+            caracteres.</span>
         </div>
       </div>
 
@@ -29,5 +34,5 @@
         {{ isLoading ? 'Authenticating...' : 'Login' }}
       </button>
     </form>
-    </div>
+  </div>
 </div>

@@ -10,7 +10,7 @@ export class RouteService {
   private apiUrl = `${environment.apiUrl}/rotas`;
 
 
-   getAllRoutes(): Observable<RouteResponse[]> {
+  getAllRoutes(): Observable<RouteResponse[]> {
     return this.http.get<RouteResponse[]>(this.apiUrl);
   }
 

@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError, finalize } from 'rxjs/operators';
-
 import { AuthService } from '../../services/auth.service';
 import { TruckService } from '../../services/truck.service';
 import { CollectionPointService } from '../../services/collection-point.service';
@@ -11,7 +10,6 @@ import { RouteService } from '../../services/route.service';
 import { ItineraryService } from '../../services/itinerary.service';
 import { BairroService } from '../../services/bairro.service';
 import { StreetService } from '../../services/street.service';
-
 import { User } from '../../core/models/user.model';
 import { Page } from '../../core/models/page.model';
 import { GraphData, GraphNode, GraphEdge } from '../../core/models/graph.model';
@@ -19,7 +17,6 @@ import { TruckResponse } from '../../core/models/truck.model';
 import { CollectionPointResponse } from '../../core/models/collection-point.model';
 import { RouteResponse } from '../../core/models/route.model';
 import { ItineraryResponse } from '../../core/models/itinerary.model';
-
 import { NetworkGraphComponent } from '../shared/network-graph/network-graph.component';
 
 interface DashboardSummary {

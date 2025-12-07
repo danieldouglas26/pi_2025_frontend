@@ -4,12 +4,8 @@ import { RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError, finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-
-// Models
 import { RouteResponse } from '../../../core/models/route.model';
 import { ApiResponse } from '../../../core/models/api-response.model';
-
-// Services
 import { RouteService } from '../../../services/route.service';
 import { NotificationService } from '../../../services/notification.service';
 

@@ -26,7 +26,7 @@ export class LoginComponent {
 
   constructor() {
     if (this.authService.isAuthenticated()) {
-        this.router.navigate(['/dashboard']);
+      this.router.navigate(['/dashboard']);
     }
 
     this.loginForm = this.fb.group({
@@ -45,15 +45,15 @@ export class LoginComponent {
 
     this.isLoading = true;
     const credentials: LoginCredentials = {
-        username: this.loginForm.value.username,
-        password: this.loginForm.value.password
+      username: this.loginForm.value.username,
+      password: this.loginForm.value.password
     };
 
     this.authService.login(credentials).subscribe({
       next: (response) => {
         this.isLoading = false;
         if (response.success && response.data) {
-                    this.router.navigateByUrl(this.returnUrl);
+          this.router.navigateByUrl(this.returnUrl);
         } else {
           this.notificationService.error(response.message || 'Login failed. Please check your credentials.');
         }

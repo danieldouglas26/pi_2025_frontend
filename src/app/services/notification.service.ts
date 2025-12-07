@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
-  constructor() {}
+  constructor() { }
 
   success(message: string): void {
     console.log(`SUCCESS: ${message}`);

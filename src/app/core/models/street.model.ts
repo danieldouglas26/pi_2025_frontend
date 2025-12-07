@@ -1,4 +1,3 @@
-
 export interface StreetRequest {
   origemId: number;
   destinoId: number;

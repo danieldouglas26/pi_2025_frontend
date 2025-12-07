@@ -1,9 +1,5 @@
-// _form-page.scss
-// This partial defines reusable styles for form pages.
-
-// Mixin to apply all form page styles
 @mixin form-page-styles {
-  display: block; // Usually good for component host elements
+  display: block;
 
   .form-page-container {
     .form-header {
@@ -25,7 +21,7 @@
       background-color: var(--card-bg-color, white);
       padding: 2rem;
       border-radius: 8px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
     }
 
     .loading-indicator {
@@ -33,12 +29,16 @@
       padding: 2rem 1rem;
       font-size: 1.1rem;
       color: var(--secondary-text-color, #555);
-      i { margin-right: 0.5rem; }
+
+      i {
+        margin-right: 0.5rem;
+      }
     }
 
     .data-form {
       .form-section {
         margin-bottom: 2rem;
+
         .section-title {
           font-size: 1.2rem;
           color: var(--primary-color, #007bff);
@@ -46,14 +46,16 @@
           padding-bottom: 0.5rem;
           border-bottom: 2px solid var(--primary-color, #007bff);
         }
-         .section-subtitle {
+
+        .section-subtitle {
           font-size: 0.85rem;
           color: #666;
           margin-top: -0.8rem;
           margin-bottom: 1rem;
+
           &.small-text {
-              font-size: 0.75rem;
-              font-style: italic;
+            font-size: 0.75rem;
+            font-style: italic;
           }
         }
       }
@@ -74,13 +76,17 @@
           font-weight: 600;
           font-size: 0.9rem;
           color: var(--label-color, #555);
-          .required-asterisk { color: var(--error-color, red); margin-left: 2px; }
+
+          .required-asterisk {
+            color: var(--error-color, red);
+            margin-left: 2px;
+          }
         }
 
         input[type="text"],
         input[type="number"],
         input[type="date"],
-        input[type="email"], // Add other input types as needed
+        input[type="email"],
         input[type="password"],
         select,
         textarea {
@@ -95,45 +101,48 @@
           &:focus {
             border-color: var(--primary-color, #007bff);
             outline: none;
-            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 0, 123, 255), 0.15); // Assuming --primary-color-rgb is defined
+            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb, 0, 123, 255), 0.15);
           }
+
           &.invalid-field {
             border-color: var(--error-color, #dc3545);
           }
         }
+
         textarea {
-            min-height: 80px; // Example min-height for textareas
+          min-height: 80px;
         }
       }
 
       .checkbox-group-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); // Adjusted minmax for potentially longer labels
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 0.8rem;
         margin-top: 0.5rem;
-        margin-bottom: 0.5rem; // Add some bottom margin
+        margin-bottom: 0.5rem;
 
         .checkbox-item {
           display: flex;
           align-items: center;
-          background-color: #fdfdfd; // Slightly off-white
+          background-color: #fdfdfd;
           padding: 0.6rem 0.8rem;
           border-radius: 4px;
-          border: 1px solid #f0f0f0; // Lighter border
+          border: 1px solid #f0f0f0;
 
           input[type="checkbox"] {
-            margin-right: 0.75rem; // More space
+            margin-right: 0.75rem;
             width: auto;
             accent-color: var(--primary-color, #007bff);
             transform: scale(1.1);
-            flex-shrink: 0; // Prevent checkbox from shrinking
+            flex-shrink: 0;
           }
+
           label {
             margin-bottom: 0;
             font-weight: normal;
             font-size: 0.9rem;
             cursor: pointer;
-            line-height: 1.3; // Better line height for wrapped labels
+            line-height: 1.3;
           }
         }
       }
@@ -142,19 +151,21 @@
         color: var(--error-color, #dc3545);
         font-size: 0.8rem;
         margin-top: 0.4rem;
-        &.array-error { // Specific for errors related to FormArray validation
-            margin-top: 0.5rem;
-            display: block; // Ensure it takes its own line
+
+        &.array-error {
+          margin-top: 0.5rem;
+          display: block;
         }
       }
-       .no-data-message.small { // For messages like "no items to select"
-          font-size: 0.9rem;
-          padding: 0.8rem;
-          background-color: #f9f9f9;
-          border: 1px dashed #eee;
-          border-radius: 4px;
-          text-align: center;
-          color: var(--secondary-text-color, #555);
+
+      .no-data-message.small {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+        background-color: #f9f9f9;
+        border: 1px dashed #eee;
+        border-radius: 4px;
+        text-align: center;
+        color: var(--secondary-text-color, #555);
       }
 
       .form-actions {
@@ -167,6 +178,5 @@
       }
     }
   }
-   // Ensure button styles are available or define them if not using global .btn classes from styles.scss
-  // This assumes global .btn, .btn-primary, .btn-secondary, .btn-link-secondary are defined
+
 }

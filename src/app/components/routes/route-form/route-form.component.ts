@@ -5,22 +5,17 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, forkJoin, of } from 'rxjs';
 import { finalize, catchError } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
-
-// Models
 import { ApiResponse } from '../../../core/models/api-response.model';
 import { RouteRequest, RouteResponse } from '../../../core/models/route.model';
 import { TruckResponse } from '../../../core/models/truck.model';
 import { BairroResponse } from '../../../core/models/bairro.model';
 import { Page } from '../../../core/models/page.model';
 import { ResidueType } from '../../../core/models/enums';
-
-// Services
 import { RouteService } from '../../../services/route.service';
 import { TruckService } from '../../../services/truck.service';
 import { BairroService } from '../../../services/bairro.service';
 import { NotificationService } from '../../../services/notification.service';
 
-// Objeto de fallback para paginação em caso de erro.
 const EMPTY_PAGE: Page<any> = { content: [], pageNumber: 0, pageSize: 0, totalElements: 0, totalPages: 0, last: true };
 
 @Component({
@@ -89,13 +84,10 @@ export class RouteFormComponent implements OnInit, OnDestroy {
     this.isLoading = true;
     const sub = forkJoin({
       trucks: this.truckService.getAllTrucks(),
-      // -> AJUSTE: Peça uma página grande para garantir que todos os bairros venham no dropdown.
-      // O ideal é ter um endpoint específico para isso no backend.
       bairros: this.bairroService.getAllBairros(0, 1000)
     }).subscribe({
       next: (results) => {
         this.availableTrucks = results.trucks.content || [];
-        // -> AJUSTE: Acesse a propriedade 'content' da página de bairros
         this.availableBairros = results.bairros.content || [];
 
         if (this.isEditMode && this.id) {

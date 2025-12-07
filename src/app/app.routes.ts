@@ -18,7 +18,6 @@ export const routes: Routes = [
         title: 'Dashboard - GreenLog'
       },
 
-      // --> ROTAS PARA BAIRROS ADICIONADAS AQUI <--
       {
         path: 'bairros',
         loadComponent: () => import('./components/bairros/bairro-list/bairro-list.component').then(m => m.BairroListComponent),
@@ -34,9 +33,6 @@ export const routes: Routes = [
         loadComponent: () => import('./components/bairros/bairro-form/bairro-form.component').then(m => m.BairroFormComponent),
         title: 'Editar Bairro - GreenLog'
       },
-      // --> FIM DAS ROTAS PARA BAIRROS <--
-
-      // Trucks
       {
         path: 'trucks',
         loadComponent: () => import('./components/trucks/truck-list/truck-list.component').then(m => m.TruckListComponent),
@@ -52,7 +48,6 @@ export const routes: Routes = [
         loadComponent: () => import('./components/trucks/truck-form/truck-form.component').then(m => m.TruckFormComponent),
         title: 'Novo Caminhão - GreenLog'
       },
-      // Collection Points
       {
         path: 'collection-points',
         loadComponent: () => import('./components/collection-points/collection-point-list/collection-point-list.component').then(m => m.CollectionPointListComponent),
@@ -68,7 +63,6 @@ export const routes: Routes = [
         loadComponent: () => import('./components/collection-points/collection-point-form/collection-point-form.component').then(m => m.CollectionPointFormComponent),
         title: 'Novo Ponto de Coleta - GreenLog'
       },
-      // Routes
       {
         path: 'routes',
         loadComponent: () => import('./components/routes/route-list/route-list.component').then(m => m.RouteListComponent),
@@ -84,7 +78,6 @@ export const routes: Routes = [
         loadComponent: () => import('./components/routes/route-form/route-form.component').then(m => m.RouteFormComponent),
         title: 'Nova Rota - GreenLog'
       },
-      // Itineraries
       {
         path: 'itineraries',
         loadComponent: () => import('./components/itineraries/itinerary-planner/itinerary-planner.component').then(m => m.ItineraryPlannerComponent),
@@ -100,7 +93,6 @@ export const routes: Routes = [
         loadComponent: () => import('./components/itineraries/itinerary-form/itinerary-form.component').then(m => m.ItineraryFormComponent),
         title: 'Novo Itinerário - GreenLog'
       },
-      // Ruas (Streets)
       {
         path: 'streets',
         loadComponent: () => import('./components/streets/street-list/street-list.component').then(m => m.StreetListComponent),
