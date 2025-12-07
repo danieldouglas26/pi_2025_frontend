@@ -1,6 +1,14 @@
 import { Component, OnInit, inject, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormArray,
+  AbstractControl,
+  ValidationErrors
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, of } from 'rxjs';
 import { finalize, catchError, map } from 'rxjs/operators';
@@ -39,7 +47,6 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
   @Input() id?: number;
 
   constructor() {
-
     this.initializeForm();
   }
 
@@ -49,6 +56,8 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
     const routeId = this.activatedRoute.snapshot.paramMap.get('id');
     const numericId = routeId ? parseInt(routeId, 10) : undefined;
 
+
+
     if (numericId) {
       this.id = numericId;
       this.isEditMode = true;
@@ -56,8 +65,6 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
       this.loadPointData(this.id);
     } else {
       this.pageTitle = 'Adicionar Novo Ponto de Coleta';
-
-      this.buildResidueTypesCheckboxes();
     }
   }
 
@@ -66,6 +73,15 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
   }
 
 
+  private minSelectedCheckboxes(min = 1) {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const formArray = control as FormArray;
+      const totalSelected = formArray.controls
+        .map(ctrl => ctrl.value)
+        .reduce((sum, next) => next ? sum + 1 : sum, 0);
+      return totalSelected >= min ? null : { required: true };
+    };
+  }
 
   private initializeForm(): void {
     this.pointForm = this.fb.group({
@@ -75,9 +91,10 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
       email: ['', [Validators.required, Validators.email]],
       telefone: ['', [Validators.required, Validators.pattern(/^\+?[\d\s()-]{10,}$/)]],
       endereco: ['', Validators.required],
+
       tiposDeResiduo: this.fb.array(
         this.availableResidueTypes.map(() => this.fb.control(false)),
-        [Validators.required, Validators.minLength(1)]
+        [this.minSelectedCheckboxes(1)]
       )
     });
   }
@@ -86,30 +103,34 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
     return this.pointForm.get('tiposDeResiduo') as FormArray;
   }
 
-  private buildResidueTypesCheckboxes(selectedTypes: string[] = []): void {
-    this.tiposDeResiduoFormArray.clear();
 
-    this.availableResidueTypes.forEach(type => {
-      const isChecked = (selectedTypes ?? []).includes(type);
-      this.tiposDeResiduoFormArray.push(this.fb.control(isChecked));
+  private updateResidueTypesCheckboxes(selectedTypes: string[] = []): void {
+
+    const normalizedSelectedTypes = (selectedTypes || []).map(type =>
+      type?.toString().toUpperCase().trim()
+    );
+
+
+    const newValues = this.availableResidueTypes.map(type => {
+      const typeStr = type.toString().toUpperCase().trim();
+      return normalizedSelectedTypes.includes(typeStr);
     });
 
-    if (this.isEditMode && selectedTypes.length > 0) {
-      this.tiposDeResiduoFormArray.markAsTouched();
-    }
+
+    this.tiposDeResiduoFormArray.setValue(newValues);
   }
 
   private getSelectedResidueTypesFromForm(): string[] {
     return this.tiposDeResiduoFormArray.value
       .map((checked: boolean, i: number) => {
         if (checked) {
-          const originalType = this.availableResidueTypes[i];
-          return originalType;
+          return this.availableResidueTypes[i];
         }
         return null;
       })
       .filter((value: string | null): value is string => value !== null);
   }
+
   private loadBairros(): void {
     this.bairros$ = this.bairroService.getAllBairros(0, 1000).pipe(
       map(page => page.content),
@@ -138,10 +159,11 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
           endereco: response.endereco
         });
 
-        this.buildResidueTypesCheckboxes(response.tiposResiduo);
+
+        this.updateResidueTypesCheckboxes(response.tiposResiduo);
+
         this.pointForm.markAsPristine();
         this.pointForm.markAsUntouched();
-
       },
       error: (err: HttpErrorResponse) => {
         const apiResponse = err.error as ApiResponse<null>;
@@ -160,9 +182,6 @@ export class CollectionPointFormComponent implements OnInit, OnDestroy {
   }
 
   onSubmit(): void {
-    console.log('Dados do formulário antes de enviar:', this.pointForm.value);
-    console.log('Tipos de resíduo a serem enviados:', this.getSelectedResidueTypesFromForm());
-
     if (this.pointForm.invalid) {
       this.pointForm.markAllAsTouched();
       this.notificationService.error('Por favor, corrija os erros no formulário.');

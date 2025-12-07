@@ -87,7 +87,6 @@
         <p><strong>Nome da Rota:</strong> {{ currentRouteDetails.nome }}</p>
         <p><strong>Caminhão Designado:</strong> {{ currentRouteDetails.caminhaoPlaca }}</p>
         <p><strong>Distância Total:</strong> {{ currentRouteDetails.distanciaTotalKm | number:'1.1-2' }} km</p>
-        <p><strong>Tipo de Resíduo Atendido:</strong> {{ currentRouteDetails.tipoResiduo | titlecase }}</p>
         <p><strong>Caminho (Bairros Ordenados):</strong></p>
         <ul class="point-list">
           <li *ngFor="let parada of currentRouteDetails.paradas">

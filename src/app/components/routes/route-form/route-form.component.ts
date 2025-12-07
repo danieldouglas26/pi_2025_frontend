@@ -2,21 +2,18 @@ import { Component, OnInit, inject, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Observable, Subscription, forkJoin, of } from 'rxjs';
-import { finalize, catchError } from 'rxjs/operators';
+import { Observable, Subscription, forkJoin } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ApiResponse } from '../../../core/models/api-response.model';
 import { RouteRequest, RouteResponse } from '../../../core/models/route.model';
 import { TruckResponse } from '../../../core/models/truck.model';
 import { BairroResponse } from '../../../core/models/bairro.model';
-import { Page } from '../../../core/models/page.model';
 import { ResidueType } from '../../../core/models/enums';
 import { RouteService } from '../../../services/route.service';
 import { TruckService } from '../../../services/truck.service';
 import { BairroService } from '../../../services/bairro.service';
 import { NotificationService } from '../../../services/notification.service';
-
-const EMPTY_PAGE: Page<any> = { content: [], pageNumber: 0, pageSize: 0, totalElements: 0, totalPages: 0, last: true };
 
 @Component({
   selector: 'app-route-form',
@@ -80,7 +77,7 @@ export class RouteFormComponent implements OnInit, OnDestroy {
     });
   }
 
-   loadPrerequisites(): void {
+  loadPrerequisites(): void {
     this.isLoading = true;
     const sub = forkJoin({
       trucks: this.truckService.getAllTrucks(),
@@ -105,15 +102,27 @@ export class RouteFormComponent implements OnInit, OnDestroy {
   }
 
   loadRouteData(routeId: number): void {
-    const sub = this.routeService.getRouteById(routeId).pipe(finalize(() => this.isLoading = false)).subscribe({
+    const sub = this.routeService.getRouteById(routeId).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
       next: (route: RouteResponse) => {
         this.currentRouteDetails = route;
+
+
+        const rawResidueType = (route as any).tiposResiduos || route.tipoResiduo;
+
+
+        const normalizedResidueType = rawResidueType
+          ? rawResidueType.toString().toUpperCase().trim()
+          : null;
+
         this.routeForm.patchValue({
           nome: route.nome,
           caminhaoId: route.caminhaoId,
+
           origemBairroId: route.paradas?.[0]?.bairroId || null,
           destinoBairroId: route.paradas?.[route.paradas.length - 1]?.bairroId || null,
-          tipoResiduo: route.tipoResiduo
+          tipoResiduo: normalizedResidueType
         });
       },
       error: (err: HttpErrorResponse) => {

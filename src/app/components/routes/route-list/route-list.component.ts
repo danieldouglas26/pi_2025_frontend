@@ -2,7 +2,8 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
+
+import { catchError, finalize, tap, map } from 'rxjs/operators';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouteResponse } from '../../../core/models/route.model';
 import { ApiResponse } from '../../../core/models/api-response.model';
@@ -35,10 +36,21 @@ export class RouteListComponent implements OnInit {
     this.isLoading = true;
     this.hasError = false;
     this.routes$ = this.routeService.getAllRoutes().pipe(
+
+      map(routes => routes.map(route => {
+        return {
+          ...route,
+
+          tipoResiduo: route.tipoResiduo || (route as any).tiposResiduos
+        };
+      })),
+      tap(routes => {
+        console.log('Rotas carregadas e mapeadas:', routes);
+      }),
       catchError((error) => {
         this.hasError = true;
         this.errorMessage = 'Falha ao carregar as rotas. Tente novamente.';
-        console.error(error);
+        console.error('Erro ao buscar rotas:', error);
         return of([]);
       }),
       finalize(() => {

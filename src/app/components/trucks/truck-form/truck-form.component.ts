@@ -1,7 +1,14 @@
-
 import { Component, OnInit, inject, Input, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormArray } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  FormArray,
+  AbstractControl,
+  ValidationErrors
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription } from 'rxjs';
 import { finalize } from 'rxjs/operators';
@@ -44,7 +51,6 @@ export class TruckFormComponent implements OnInit, OnDestroy {
     const routeIdStr = this.activatedRoute.snapshot.paramMap.get('id');
     const routeId = routeIdStr ? +routeIdStr : null;
 
-    this.buildResidueTypesCheckboxes();
 
     if (routeId !== null && !isNaN(routeId)) {
       this.id = routeId;
@@ -60,12 +66,25 @@ export class TruckFormComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 
+  private minSelectedCheckboxes(min = 1) {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const formArray = control as FormArray;
+      const totalSelected = formArray.controls
+        .map(ctrl => ctrl.value)
+        .reduce((sum, next) => next ? sum + 1 : sum, 0);
+      return totalSelected >= min ? null : { required: true };
+    };
+  }
+
   private initializeForm(): void {
     this.truckForm = this.fb.group({
       placa: ['', [Validators.required, Validators.pattern('^[A-Z]{3}-?[0-9][A-Z][0-9]{2}$')]],
       nomeMotorista: ['', [Validators.required, Validators.minLength(3)]],
       capacidade: [null, [Validators.required, Validators.min(1)]],
-      tipoResiduos: this.fb.array([], [Validators.required, Validators.minLength(1)])
+      tipoResiduos: this.fb.array(
+        this.availableResidueTypes.map(() => this.fb.control(false)),
+        [this.minSelectedCheckboxes(1)]
+      )
     });
   }
 
@@ -73,12 +92,17 @@ export class TruckFormComponent implements OnInit, OnDestroy {
     return this.truckForm.get('tipoResiduos') as FormArray;
   }
 
-  private buildResidueTypesCheckboxes(selectedTypes: string[] = []): void {
-    this.tipoResiduosFormArray.clear();
-    this.availableResidueTypes.forEach(type => {
-      const isChecked = (selectedTypes ?? []).includes(type);
-      this.tipoResiduosFormArray.push(this.fb.control(isChecked));
+  private updateResidueTypesCheckboxes(selectedTypes: string[] = []): void {
+    const normalizedSelectedTypes = (selectedTypes || []).map(type =>
+      type?.toString().toUpperCase().trim()
+    );
+
+    const newValues = this.availableResidueTypes.map(type => {
+      const typeStr = type.toString().toUpperCase().trim();
+      return normalizedSelectedTypes.includes(typeStr);
     });
+
+    this.tipoResiduosFormArray.setValue(newValues);
   }
 
   private getSelectedResidueTypesFromForm(): string[] {
@@ -98,7 +122,8 @@ export class TruckFormComponent implements OnInit, OnDestroy {
           nomeMotorista: response.nomeMotorista,
           capacidade: response.capacidade,
         });
-        this.buildResidueTypesCheckboxes(response.tipoResiduos);
+
+        this.updateResidueTypesCheckboxes(response.tipoResiduos);
       },
       error: (err: HttpErrorResponse) => {
         this.notificationService.error('Erro ao carregar dados do caminhão.');
